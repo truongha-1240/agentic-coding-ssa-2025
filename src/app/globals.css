@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
 :root {
-	--background: #ffffff;
-	--foreground: #171717;
+	--color-bg-primary: #00101A;
+	--color-header-bg: rgba(11, 15, 18, 0.8);
+	--color-btn-login: #FFEA9E;
+	--color-btn-login-text: #00101A;
+	--color-btn-login-hover: #FFE070;
+	--color-btn-login-active: #FFD740;
+	--color-text-white: #FFFFFF;
+	--color-border-footer: #2E3940;
+	--color-error: #EF4444;
+
+	--shadow-btn-hover: 0 4px 12px rgba(255, 234, 158, 0.3);
 }
 
 @theme inline {
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--font-sans: var(--font-geist-sans);
-	--font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--background: #0a0a0a;
-		--foreground: #ededed;
-	}
+	--font-sans: var(--font-montserrat);
 }
 
 body {
-	background: var(--background);
-	color: var(--foreground);
-	font-family: Arial, Helvetica, sans-serif;
+	background: var(--color-bg-primary);
+	color: var(--color-text-white);
+	font-family: var(--font-montserrat), sans-serif;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
