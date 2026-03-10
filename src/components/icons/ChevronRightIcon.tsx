@@ -1,0 +1,18 @@
+interface ChevronRightIconProps {
+	className?: string;
+}
+
+export function ChevronRightIcon({ className = "w-6 h-6" }: ChevronRightIconProps) {
+	return (
+		<svg
+			width="24"
+			height="24"
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={className}
+		>
+			<path d="M10 7L15 12L10 17V7Z" fill="currentColor" />
+		</svg>
+	);
+}
