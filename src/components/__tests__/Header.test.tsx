@@ -30,4 +30,16 @@ describe("Header", () => {
 		expect(screen.getByTestId("language-selector")).toBeInTheDocument();
 		expect(screen.getByText("VN")).toBeInTheDocument();
 	});
+
+	it("renders children in the right-side slot", async () => {
+		const { Header } = await import("@/components/Header");
+		render(
+			<Header>
+				<div data-testid="profile-dropdown">Profile</div>
+			</Header>
+		);
+
+		expect(screen.getByTestId("profile-dropdown")).toBeInTheDocument();
+		expect(screen.getByTestId("language-selector")).toBeInTheDocument();
+	});
 });
