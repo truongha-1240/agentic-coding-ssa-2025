@@ -42,4 +42,35 @@ describe("Header", () => {
 		expect(screen.getByTestId("profile-dropdown")).toBeInTheDocument();
 		expect(screen.getByTestId("language-selector")).toBeInTheDocument();
 	});
+
+	it("renders nav links when navLinks prop provided", async () => {
+		const { Header } = await import("@/components/Header");
+		render(
+			<Header
+				navLinks={[
+					{ label: "About SAA 2025", href: "/" },
+					{ label: "Awards Information", href: "/awards-information" },
+				]}
+			/>,
+		);
+
+		expect(screen.getByText("About SAA 2025")).toBeInTheDocument();
+		expect(screen.getByText("Awards Information")).toBeInTheDocument();
+	});
+
+	it("renders notification bell when showNotification is true", async () => {
+		const { Header } = await import("@/components/Header");
+		const { container } = render(<Header showNotification />);
+
+		const bell = container.querySelector('[aria-label="Notifications"]');
+		expect(bell).toBeInTheDocument();
+	});
+
+	it("backward compatible: renders without navLinks or showNotification", async () => {
+		const { Header } = await import("@/components/Header");
+		render(<Header />);
+
+		expect(screen.getByAltText("SAA 2025")).toBeInTheDocument();
+		expect(screen.queryByText("About SAA 2025")).not.toBeInTheDocument();
+	});
 });

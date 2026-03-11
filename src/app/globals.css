@@ -17,6 +17,14 @@
 	--color-dropdown-border: #998C5F;
 	--color-dropdown-item-hover: rgba(255, 234, 158, 0.1);
 	--shadow-text-glow: 0 4px 4px rgba(0, 0, 0, 0.25), 0 0 6px #FAE287;
+
+	/* Homepage design tokens */
+	--color-text-gold: #FFEA9E;
+	--color-border-gold: #998C5F;
+	--color-btn-secondary-bg: rgba(255, 234, 158, 0.1);
+	--color-notification-dot: rgba(212, 39, 29, 1);
+	--color-kudos-text: #DBD1C1;
+	--color-hero-gradient: linear-gradient(12deg, #00101A 23.7%, rgba(0, 18, 29, 0.46) 38.34%, rgba(0, 19, 32, 0) 48.92%);
 }
 
 @theme inline {
