@@ -46,14 +46,14 @@ export const AWARD_CATEGORIES: AwardCategory[] = [
 ];
 
 export const HEADER_NAV_LINKS: NavLink[] = [
-	{ label: "About SAA 2025", href: "/" },
-	{ label: "Awards Information", href: "/awards-information" },
+	{ label: "Giới thiệu SAA 2025", href: "/" },
+	{ label: "Thông tin giải thưởng", href: "/awards-information" },
 	{ label: "Sun* Kudos", href: "/sun-kudos" },
 ];
 
 export const FOOTER_NAV_LINKS: NavLink[] = [
-	{ label: "About SAA 2025", href: "/" },
-	{ label: "Awards Information", href: "/awards-information" },
+	{ label: "Giới thiệu SAA 2025", href: "/" },
+	{ label: "Thông tin giải thưởng", href: "/awards-information" },
 	{ label: "Sun* Kudos", href: "/sun-kudos" },
 	{ label: "Tiêu chuẩn chung", href: "/tieu-chuan-chung" },
 ];
