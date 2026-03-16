@@ -3,7 +3,7 @@ import { Montserrat, Montserrat_Alternates } from "next/font/google";
 import "./globals.css";
 
 const montserrat = Montserrat({
-	weight: ["500", "700"],
+	weight: ["400", "500", "700"],
 	subsets: ["latin", "vietnamese"],
 	variable: "--font-montserrat",
 });
