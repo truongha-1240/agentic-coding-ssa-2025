@@ -1,0 +1,113 @@
+erDiagram
+    profiles ||--o{ kudos : "sends"
+    profiles ||--o{ kudos : "receives"
+    profiles ||--o{ kudo_reactions : "reacts"
+    profiles ||--o{ secret_boxes : "owns"
+    profiles ||--o{ user_badges : "collects"
+    profiles }o--|| departments : "belongs_to"
+
+    departments {
+        bigint id PK
+        varchar name UK
+        varchar parent_name
+        timestamptz created_at
+    }
+
+    profiles {
+        bigint id PK
+        uuid auth_user_id UK
+        varchar email UK
+        varchar name
+        varchar avatar_url
+        varchar role
+        bigint department_id FK
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    kudos ||--o{ kudo_images : "has"
+    kudos ||--o{ kudo_hashtags : "tagged_with"
+    kudos ||--o{ kudo_reactions : "receives"
+
+    kudos {
+        bigint id PK
+        bigint sender_id FK
+        bigint recipient_id FK
+        text content
+        boolean is_anonymous
+        varchar anonymous_name
+        boolean is_highlighted
+        integer reaction_count
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    kudo_images {
+        bigint id PK
+        bigint kudo_id FK
+        varchar image_url
+        integer display_order
+        timestamptz created_at
+    }
+
+    hashtags ||--o{ kudo_hashtags : "used_in"
+
+    hashtags {
+        bigint id PK
+        varchar name UK
+        timestamptz created_at
+    }
+
+    kudo_hashtags {
+        bigint kudo_id PK_FK
+        bigint hashtag_id PK_FK
+    }
+
+    kudo_reactions {
+        bigint id PK
+        bigint kudo_id FK
+        bigint user_id FK
+        timestamptz created_at
+    }
+
+    badges ||--o{ secret_boxes : "awarded_via"
+    badges ||--o{ user_badges : "collected_as"
+
+    badges {
+        bigint id PK
+        varchar name UK
+        varchar image_url
+        decimal drop_rate
+        timestamptz created_at
+    }
+
+    secret_boxes {
+        bigint id PK
+        bigint user_id FK
+        bigint badge_id FK
+        timestamptz opened_at
+        timestamptz created_at
+    }
+
+    user_badges {
+        bigint id PK
+        bigint user_id FK
+        bigint badge_id FK
+        timestamptz obtained_at
+    }
+
+    award_categories {
+        bigint id PK
+        varchar name
+        varchar slug UK
+        text description
+        varchar thumbnail_url
+        varchar quantity
+        varchar quantity_unit
+        varchar prize_value
+        integer display_order
+        timestamptz created_at
+        timestamptz updated_at
+    }
