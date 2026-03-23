@@ -79,4 +79,10 @@ export const en = {
 	footer: {
 		copyright: "Copyright belongs to Sun* © 2025",
 	},
+	countdown: {
+		title: "Event starts in",
+		days: "DAYS",
+		hours: "HOURS",
+		minutes: "MINUTES",
+	},
 } as const;

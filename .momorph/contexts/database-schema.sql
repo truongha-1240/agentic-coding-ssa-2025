@@ -5,6 +5,20 @@
 -- ==========================================
 
 -- ==========================================
+-- 0. EVENT SETTINGS (countdown target date)
+-- ==========================================
+CREATE TABLE event_settings (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    key VARCHAR NOT NULL UNIQUE,
+    value VARCHAR NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE event_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Event settings are publicly readable" ON event_settings FOR SELECT USING (true);
+
+-- ==========================================
 -- 1. DEPARTMENTS
 -- ==========================================
 CREATE TABLE departments (

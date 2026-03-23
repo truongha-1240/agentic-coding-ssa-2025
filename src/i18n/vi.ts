@@ -79,4 +79,10 @@ export const vi = {
 	footer: {
 		copyright: "Bản quyền thuộc về Sun* © 2025",
 	},
+	countdown: {
+		title: "Sự kiện sẽ bắt đầu sau",
+		days: "DAYS",
+		hours: "HOURS",
+		minutes: "MINUTES",
+	},
 } as const;
