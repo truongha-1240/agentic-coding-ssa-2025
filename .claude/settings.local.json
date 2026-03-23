@@ -16,7 +16,11 @@
       "Bash(nvm use:*)",
       "Bash(yarn vitest:*)",
       "Bash(yarn lint:*)",
-      "Bash(yarn build:*)"
+      "Bash(yarn build:*)",
+      "Read(//home/hoang.anh.truong@sun-asterisk.com/.nvm/versions/node/**)",
+      "Bash(fnm list:*)",
+      "Bash(volta list:*)",
+      "Read(//usr/local/bin/**)"
     ]
   },
   "enabledMcpjsonServers": [

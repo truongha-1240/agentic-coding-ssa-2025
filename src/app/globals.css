@@ -18,6 +18,10 @@
 	--color-dropdown-item-hover: rgba(255, 234, 158, 0.1);
 	--shadow-text-glow: 0 4px 4px rgba(0, 0, 0, 0.25), 0 0 6px #FAE287;
 
+	/* Sun Kudos tokens */
+	--color-heart-gray: #6B7280;
+	--color-overlay-dark: rgba(0, 0, 0, 0.7);
+
 	/* Homepage design tokens */
 	--color-text-gold: #FFEA9E;
 	--color-border-gold: #998C5F;
