@@ -3,17 +3,16 @@ import { render, screen } from "@testing-library/react";
 import { SectionTitle } from "@/components/awards-information/SectionTitle";
 
 describe("SectionTitle", () => {
-	it("renders the subtitle text", () => {
+	it("renders the subtitle text (i18n key)", () => {
 		render(<SectionTitle />);
 		expect(
-			screen.getByText("Sun* Annual Awards 2025")
+			screen.getByText("sections.sectionSubtitle")
 		).toBeInTheDocument();
 	});
 
-	it("renders the main title in gold", () => {
+	it("renders the main title (i18n key)", () => {
 		render(<SectionTitle />);
-		const title = screen.getByText("Hệ thống giải thưởng SAA 2025");
-		expect(title).toBeInTheDocument();
+		expect(screen.getByText("awards.pageTitle")).toBeInTheDocument();
 	});
 
 	it("renders a separator line", () => {

@@ -99,6 +99,17 @@ The application MUST render correctly across all target viewports:
 - Images MUST use responsive sizing (`next/image` with appropriate
   `sizes` attribute).
 
+### III-B. Database Schema — MANDATORY
+
+Every new feature that introduces data persistence MUST include:
+
+- **Schema update**: Add tables/columns to `.momorph/contexts/database-schema.sql`
+- **Seed data**: Add seed inserts to `.momorph/contexts/database-seed.sql`
+- **ERD update**: Update `.momorph/contexts/DATABASE_DESIGN.mmd`
+- **Analysis update**: Update `.momorph/contexts/DATABASE_ANALYSIS.md`
+- **Supabase conventions**: Use `uuid` for PKs (Supabase default),
+  `auth.users` for auth, RLS policies on all tables.
+
 ### IV. Security-First (OWASP Compliance)
 
 All code MUST follow OWASP secure coding practices:

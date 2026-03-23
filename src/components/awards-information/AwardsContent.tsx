@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslation } from "@/i18n";
-import { getAwardCategories } from "@/utils/awards-data";
+import { useAwardCategories } from "@/hooks/useAwardCategories";
 import { AwardsLayout } from "@/components/awards-information/AwardsLayout";
 
 export function AwardsContent() {
 	const { language } = useTranslation();
-	const categories = getAwardCategories(language);
+	const { categories } = useAwardCategories(language);
 
 	return <AwardsLayout categories={categories} />;
 }

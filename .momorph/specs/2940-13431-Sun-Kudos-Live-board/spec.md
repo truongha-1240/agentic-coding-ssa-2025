@@ -272,21 +272,61 @@ A Sunner searches for another Sunner's profile using the search bar in the hero 
 
 ---
 
-## API Dependencies
+## API Dependencies — Supabase Integration
 
-| Endpoint | Method | Purpose | Status |
-|----------|--------|---------|--------|
-| /api/kudos | GET | Fetch paginated Kudos feed (cursor, limit, hashtag?, department?) | Predicted |
-| /api/kudos/highlights | GET | Fetch top 5 most-liked Kudos (query: hashtag?, department?) | Predicted |
-| /api/kudos/{id}/like | POST | Like a Kudo | Predicted |
-| /api/kudos/{id}/like | DELETE | Unlike a Kudo | Predicted |
-| /api/kudos/spotlight | GET | Fetch Spotlight Board data (names + counts) | Predicted |
-| /api/users/me/stats | GET | Fetch current user's Kudos stats | Predicted |
-| /api/users/me/secret-boxes | GET | Fetch user's Secret Box status | Predicted |
-| /api/gifts/recent | GET | Fetch 10 most recent gift recipients | Predicted |
-| /api/hashtags | GET | Fetch available hashtags for filter | Predicted |
-| /api/departments | GET | Fetch departments list for filter | Predicted |
-| /api/users/search | GET | Search Sunner profiles by name | Predicted |
+> **Database schema deployed**: `.momorph/contexts/database-schema.sql`
+> **Seed data deployed**: `.momorph/contexts/database-seed.sql`
+
+### Supabase RPC Functions (replace API routes)
+
+| RPC Function | Purpose | Replaces | Status |
+|-------------|---------|----------|--------|
+| `get_kudos_feed(p_cursor, p_limit, p_hashtag, p_department_id)` | Paginated feed with filters | `/api/kudos` | ✅ Deployed |
+| `get_highlight_kudos(p_hashtag, p_department_id)` | Top 5 by likes with filters | `/api/kudos/highlights` | ✅ Deployed |
+| `toggle_kudo_like(p_kudo_id)` | Like/unlike toggle (uses auth.uid()) | `/api/kudos/{id}/like` | ✅ Deployed |
+| `get_user_stats(p_user_id)` | Kudos received/sent, hearts, secret boxes | `/api/users/me/stats` | ✅ Deployed |
+| `get_spotlight_data()` | Aggregated recipients for word cloud | `/api/kudos/spotlight` | ✅ Deployed |
+
+### Direct Supabase Queries (no RPC needed)
+
+| Query | Purpose | Replaces | Status |
+|-------|---------|----------|--------|
+| `supabase.from('gifts').select('*, recipient:profiles(*)').order('created_at', {ascending: false}).limit(10)` | Recent gifts | `/api/gifts/recent` | ✅ Ready |
+| `supabase.from('hashtags').select('*')` | Available hashtags | `/api/hashtags` | ✅ Ready |
+| `supabase.from('departments').select('*')` | Departments list | `/api/departments` | ✅ Ready |
+| `supabase.from('profiles').select('*').ilike('name', '%query%').limit(10)` | Search profiles | `/api/users/search` | ✅ Ready |
+| `supabase.from('kudo_media').select('*').eq('kudo_id', id)` | Media per kudo | N/A | ✅ Ready |
+
+### Database Tables Used
+
+| Table | Role | RLS |
+|-------|------|-----|
+| `profiles` | User profiles (extends auth.users) | Read: everyone, Update: own |
+| `kudos` | Core kudo entity | Read: everyone, Insert: authenticated |
+| `kudo_media` | Images/videos | Read: everyone |
+| `kudo_hashtags` | M2M kudos↔hashtags | Read: everyone |
+| `kudo_likes` | Heart/likes | Read: everyone, Insert/Delete: own |
+| `hashtags` | Reference data | Read: everyone |
+| `departments` | Reference data | Read: everyone |
+| `categories` | Kudo categories | Read: everyone |
+| `hero_titles` | User badges | Read: everyone |
+| `secret_boxes` | Gamification | Read: own only |
+| `gifts` | Gift recipients | Read: everyone |
+
+### Hook → Supabase Mapping (IMPLEMENTED)
+
+All hooks have been migrated from mock data to real Supabase queries:
+
+| Hook | Supabase Call | Status |
+|------|--------------|--------|
+| `useKudosFeed` | `supabase.rpc('get_kudos_feed')` + profiles/media/likes joins | ✅ Done |
+| `useHighlightKudos` | `supabase.rpc('get_highlight_kudos')` + profiles/media/likes joins | ✅ Done |
+| `useLikeKudo` | `supabase.rpc('toggle_kudo_like')` with auth check | ✅ Done |
+| `useUserStats` | `supabase.rpc('get_user_stats')` with auth.uid() | ✅ Done |
+| `useSpotlightData` | `supabase.rpc('get_spotlight_data')` | ✅ Done |
+| `useGiftRecipients` | `supabase.from('gifts').select('*, recipient:profiles(...)')` | ✅ Done |
+
+> **NOTE**: Filter dropdowns (hashtags, departments) still use mock data in `HighlightKudos.tsx`. These should be migrated to direct Supabase queries when connecting filters to real data.
 
 ---
 
@@ -312,15 +352,16 @@ A Sunner searches for another Sunner's profile using the search bar in the hero 
 - User profile page
 - Admin features
 - Real-time WebSocket updates (can be added later)
-- Internationalization (page is Vietnamese-only for SAA 2025)
+- ~~Internationalization~~ — **DONE**: i18n system deployed with VN/EN support
 
 ---
 
 ## Dependencies
 
-- [x] Constitution document exists (`.momorph/constitution.md`)
-- [ ] API specifications available (`.momorph/contexts/api-docs.yaml`)
-- [ ] Database design completed (`.momorph/contexts/database-schema.sql`)
+- [x] Constitution document (`.momorph/constitution.md`) — includes i18n + DB rules
+- [x] Database schema deployed (`.momorph/contexts/database-schema.sql`) — 13 tables + 5 RPC functions
+- [x] Seed data deployed (`.momorph/contexts/database-seed.sql`) — 10 profiles, 15 kudos, media, hashtags, likes, boxes, gifts
+- [x] i18n system (`src/i18n/`) — VN/EN translations with TranslationProvider
 - [ ] Screen flow documented (`.momorph/SCREENFLOW.md`)
 
 ---

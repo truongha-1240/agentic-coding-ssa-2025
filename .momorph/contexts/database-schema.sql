@@ -1,262 +1,429 @@
 -- ==========================================
--- Sun* Annual Awards 2025 — Database Schema
--- Generated from Figma designs
--- Stack: Supabase (PostgreSQL) with RLS
+-- SAA 2025 — Database Schema for Supabase
+-- Generated: 2026-03-23
+-- Run this in Supabase SQL Editor
 -- ==========================================
 
--- Note: Supabase Auth manages `auth.users` automatically.
--- The `profiles` table extends auth.users with app-specific data.
-
 -- ==========================================
--- Departments (must be created before profiles due to FK)
+-- 1. DEPARTMENTS
 -- ==========================================
 CREATE TABLE departments (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR NOT NULL UNIQUE,
-    parent_name VARCHAR,
+    name_en VARCHAR,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for department name lookups
-CREATE INDEX idx_departments_name ON departments(name);
-
 -- ==========================================
--- Profiles (extends Supabase Auth)
+-- 2. HERO TITLES (New Hero, Rising Hero, etc.)
 -- ==========================================
-CREATE TABLE profiles (
-    id BIGSERIAL PRIMARY KEY,
-    auth_user_id UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-    email VARCHAR NOT NULL UNIQUE,
-    name VARCHAR NOT NULL,
-    avatar_url VARCHAR,
-    role VARCHAR NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
-    department_id BIGINT REFERENCES departments(id),
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+CREATE TABLE hero_titles (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR NOT NULL UNIQUE,
+    color VARCHAR NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Indexes for profiles
-CREATE INDEX idx_profiles_auth_user_id ON profiles(auth_user_id);
-CREATE INDEX idx_profiles_department_id ON profiles(department_id);
-CREATE INDEX idx_profiles_email ON profiles(email);
-CREATE INDEX idx_profiles_role ON profiles(role);
-
 -- ==========================================
--- Award Categories
+-- 3. PROFILES (extends auth.users)
 -- ==========================================
-CREATE TABLE award_categories (
-    id BIGSERIAL PRIMARY KEY,
+CREATE TABLE profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     name VARCHAR NOT NULL,
-    slug VARCHAR NOT NULL UNIQUE,
-    description TEXT,
-    thumbnail_url VARCHAR,
-    quantity VARCHAR,
-    quantity_unit VARCHAR,
-    prize_value VARCHAR,
-    display_order INTEGER NOT NULL DEFAULT 0,
+    email VARCHAR NOT NULL UNIQUE,
+    avatar_url VARCHAR,
+    department_id UUID REFERENCES departments(id),
+    hero_title_id UUID REFERENCES hero_titles(id),
+    star_count INT DEFAULT 0,
+    role VARCHAR DEFAULT 'user' CHECK (role IN ('user', 'admin')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for display ordering
-CREATE INDEX idx_award_categories_display_order ON award_categories(display_order);
+CREATE INDEX idx_profiles_department ON profiles(department_id);
+CREATE INDEX idx_profiles_role ON profiles(role);
+CREATE INDEX idx_profiles_name ON profiles(name);
 
 -- ==========================================
--- Hashtags (predefined tags for kudos)
+-- 4. CATEGORIES (Kudo categories: "IDOL GIỚI TRẺ", "SẾP QUỐC DÂN")
+-- ==========================================
+CREATE TABLE categories (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR NOT NULL UNIQUE,
+    name_en VARCHAR,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 5. HASHTAGS
 -- ==========================================
 CREATE TABLE hashtags (
-    id BIGSERIAL PRIMARY KEY,
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR NOT NULL UNIQUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for hashtag name lookups
-CREATE INDEX idx_hashtags_name ON hashtags(name);
-
 -- ==========================================
--- Kudos (core entity — recognition messages)
+-- 6. KUDOS (core entity)
 -- ==========================================
 CREATE TABLE kudos (
-    id BIGSERIAL PRIMARY KEY,
-    sender_id BIGINT NOT NULL REFERENCES profiles(id),
-    recipient_id BIGINT NOT NULL REFERENCES profiles(id),
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    sender_id UUID NOT NULL REFERENCES profiles(id),
+    recipient_id UUID NOT NULL REFERENCES profiles(id),
     content TEXT NOT NULL,
-    is_anonymous BOOLEAN NOT NULL DEFAULT FALSE,
-    anonymous_name VARCHAR,
-    is_highlighted BOOLEAN NOT NULL DEFAULT FALSE,
-    reaction_count INTEGER NOT NULL DEFAULT 0,
+    category_id UUID REFERENCES categories(id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     deleted_at TIMESTAMPTZ
 );
 
--- Indexes for kudos
-CREATE INDEX idx_kudos_sender_id ON kudos(sender_id);
-CREATE INDEX idx_kudos_recipient_id ON kudos(recipient_id);
+CREATE INDEX idx_kudos_sender ON kudos(sender_id);
+CREATE INDEX idx_kudos_recipient ON kudos(recipient_id);
+CREATE INDEX idx_kudos_category ON kudos(category_id);
 CREATE INDEX idx_kudos_created_at ON kudos(created_at DESC);
-CREATE INDEX idx_kudos_is_highlighted ON kudos(is_highlighted) WHERE is_highlighted = TRUE;
-
--- Composite index for live board: recent kudos with highlight priority
-CREATE INDEX idx_kudos_highlight_created
-    ON kudos(is_highlighted DESC, created_at DESC);
 
 -- ==========================================
--- Kudo Images (max 5 per kudo)
+-- 7. KUDO MEDIA (images/videos attached to kudos)
 -- ==========================================
-CREATE TABLE kudo_images (
-    id BIGSERIAL PRIMARY KEY,
-    kudo_id BIGINT NOT NULL REFERENCES kudos(id) ON DELETE CASCADE,
-    image_url VARCHAR NOT NULL,
-    display_order INTEGER NOT NULL DEFAULT 0,
+CREATE TABLE kudo_media (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    kudo_id UUID NOT NULL REFERENCES kudos(id) ON DELETE CASCADE,
+    url VARCHAR NOT NULL,
+    type VARCHAR NOT NULL CHECK (type IN ('image', 'video')),
+    thumbnail_url VARCHAR,
+    sort_order INT DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Index for kudo image lookups
-CREATE INDEX idx_kudo_images_kudo_id ON kudo_images(kudo_id);
+CREATE INDEX idx_kudo_media_kudo ON kudo_media(kudo_id);
 
 -- ==========================================
--- Kudo Hashtags (M:N junction — max 5 per kudo)
+-- 8. KUDO HASHTAGS (many-to-many)
 -- ==========================================
 CREATE TABLE kudo_hashtags (
-    kudo_id BIGINT NOT NULL REFERENCES kudos(id) ON DELETE CASCADE,
-    hashtag_id BIGINT NOT NULL REFERENCES hashtags(id) ON DELETE CASCADE,
-    PRIMARY KEY (kudo_id, hashtag_id)
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    kudo_id UUID NOT NULL REFERENCES kudos(id) ON DELETE CASCADE,
+    hashtag_id UUID NOT NULL REFERENCES hashtags(id) ON DELETE CASCADE,
+    UNIQUE(kudo_id, hashtag_id)
 );
 
--- Index for hashtag-based filtering
-CREATE INDEX idx_kudo_hashtags_hashtag_id ON kudo_hashtags(hashtag_id);
+CREATE INDEX idx_kudo_hashtags_kudo ON kudo_hashtags(kudo_id);
+CREATE INDEX idx_kudo_hashtags_hashtag ON kudo_hashtags(hashtag_id);
 
 -- ==========================================
--- Kudo Reactions (one per user per kudo)
+-- 9. KUDO LIKES (hearts)
 -- ==========================================
-CREATE TABLE kudo_reactions (
-    id BIGSERIAL PRIMARY KEY,
-    kudo_id BIGINT NOT NULL REFERENCES kudos(id) ON DELETE CASCADE,
-    user_id BIGINT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+CREATE TABLE kudo_likes (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    kudo_id UUID NOT NULL REFERENCES kudos(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    UNIQUE (kudo_id, user_id)
+    UNIQUE(kudo_id, user_id)
 );
 
--- Indexes for kudo reactions
-CREATE INDEX idx_kudo_reactions_kudo_id ON kudo_reactions(kudo_id);
-CREATE INDEX idx_kudo_reactions_user_id ON kudo_reactions(user_id);
+CREATE INDEX idx_kudo_likes_kudo ON kudo_likes(kudo_id);
+CREATE INDEX idx_kudo_likes_user ON kudo_likes(user_id);
 
 -- ==========================================
--- Badges (6 fixed badge types for secret box)
--- ==========================================
-CREATE TABLE badges (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR NOT NULL UNIQUE,
-    image_url VARCHAR,
-    drop_rate DECIMAL(5, 4) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- ==========================================
--- Secret Boxes (earned by users, opened for badges)
+-- 10. SECRET BOXES
 -- ==========================================
 CREATE TABLE secret_boxes (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    badge_id BIGINT REFERENCES badges(id),
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
     opened_at TIMESTAMPTZ,
+    reward_description TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Indexes for secret boxes
-CREATE INDEX idx_secret_boxes_user_id ON secret_boxes(user_id);
-CREATE INDEX idx_secret_boxes_user_unopened
-    ON secret_boxes(user_id) WHERE opened_at IS NULL;
+CREATE INDEX idx_secret_boxes_user ON secret_boxes(user_id);
 
 -- ==========================================
--- User Badges (badge collection per user)
+-- 11. GIFTS (recent gift recipients in sidebar)
 -- ==========================================
-CREATE TABLE user_badges (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    badge_id BIGINT NOT NULL REFERENCES badges(id),
-    obtained_at TIMESTAMPTZ DEFAULT NOW()
+CREATE TABLE gifts (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    recipient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    description VARCHAR NOT NULL,
+    description_en VARCHAR,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Indexes for user badges
-CREATE INDEX idx_user_badges_user_id ON user_badges(user_id);
-CREATE INDEX idx_user_badges_badge_id ON user_badges(badge_id);
+CREATE INDEX idx_gifts_recipient ON gifts(recipient_id);
+CREATE INDEX idx_gifts_created_at ON gifts(created_at DESC);
 
 -- ==========================================
--- Seed Data: Award Categories
+-- 12. AWARD CATEGORIES (Awards Information page)
 -- ==========================================
-INSERT INTO award_categories (name, slug, description, quantity, quantity_unit, prize_value, display_order) VALUES
-    ('Top Talent', 'top-talent', 'Giải thưởng vinh danh những cá nhân xuất sắc nhất, nỗ lực trở thành tinh anh trong lĩnh vực của mình.', '10', 'Đơn vị', '7.000.000 VNĐ', 1),
-    ('Top Project', 'top-project', 'Giải thưởng vinh danh những dự án xuất sắc nhất trong năm.', '02', 'Tập thể', '15.000.000 VNĐ', 2),
-    ('Top Project Leader', 'top-project-leader', 'Giải thưởng vinh danh những người dẫn dắt dự án xuất sắc nhất.', '03', 'Cá nhân', '7.000.000 VNĐ', 3),
-    ('Best Manager', 'best-manager', 'Giải thưởng vinh danh quản lý xuất sắc nhất trong năm.', '01', 'Cá nhân', '10.000.000 VNĐ', 4),
-    ('Signature 2025 - Creator', 'signature-2025-creator', 'Giải thưởng đặc biệt cho cá nhân/tập thể sáng tạo đột phá.', '01', 'Cá nhân/Tập thể', '5.000.000 - 8.000.000 VNĐ', 5),
-    ('MVP (Most Valuable Person)', 'mvp', 'Giải thưởng cao nhất vinh danh cá nhân có giá trị nhất trong năm.', '01', 'Cá nhân', '15.000.000 VNĐ', 6);
+CREATE TABLE award_categories (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    slug VARCHAR NOT NULL UNIQUE,
+    description_vi TEXT NOT NULL,
+    description_en TEXT NOT NULL,
+    thumbnail_path VARCHAR,
+    quantity VARCHAR NOT NULL,
+    unit_vi VARCHAR NOT NULL,
+    unit_en VARCHAR NOT NULL,
+    sort_order INT DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
 -- ==========================================
--- Seed Data: Badges
+-- 13. AWARD PRIZES
 -- ==========================================
-INSERT INTO badges (name, image_url, drop_rate) VALUES
-    ('Stay Gold', '/images/badges/stay-gold.png', 0.3000),
-    ('Flow to Horizon', '/images/badges/flow-to-horizon.png', 0.2500),
-    ('Touch of Light', '/images/badges/touch-of-light.png', 0.2000),
-    ('Beyond the Boundary', '/images/badges/beyond-the-boundary.png', 0.1000),
-    ('Revival', '/images/badges/revival.png', 0.1000),
-    ('Root Further', '/images/badges/root-further.png', 0.0500);
+CREATE TABLE award_prizes (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    award_category_id UUID NOT NULL REFERENCES award_categories(id) ON DELETE CASCADE,
+    value VARCHAR NOT NULL,
+    note_vi VARCHAR,
+    note_en VARCHAR,
+    sort_order INT DEFAULT 0
+);
+
+CREATE INDEX idx_award_prizes_category ON award_prizes(award_category_id);
 
 -- ==========================================
--- Seed Data: Departments (partial — full list from HR system)
+-- ROW LEVEL SECURITY (RLS)
 -- ==========================================
-INSERT INTO departments (name, parent_name) VALUES
-    ('CTO', NULL),
-    ('SPD', NULL),
-    ('FCOV', NULL),
-    ('CEVC1', NULL),
-    ('CEVC2', NULL),
-    ('CEVC3', NULL),
-    ('CEVC4', NULL),
-    ('STVC', NULL),
-    ('OPDC', NULL),
-    ('GEU', NULL),
-    ('PAO', NULL),
-    ('IAV', NULL),
-    ('CPV', NULL),
-    ('BDV', NULL),
-    ('CEVEC', NULL),
-    ('STVC - R&D', 'STVC'),
-    ('CEVC2 - CySS', 'CEVC2'),
-    ('FCOV - LRM', 'FCOV'),
-    ('CEVC2 - System', 'CEVC2'),
-    ('OPDC - HRF', 'OPDC'),
-    ('CEVC1 - DSV - UI/UX 1', 'CEVC1'),
-    ('CEVC1 - DSV', 'CEVC1'),
-    ('OPDC - HRD - C&C', 'OPDC'),
-    ('FCOV - F&A', 'FCOV'),
-    ('CEVC1 - AIE', 'CEVC1'),
-    ('OPDC - HRF - C&B', 'OPDC'),
-    ('FCOV - GA', 'FCOV'),
-    ('FCOV - ISO', 'FCOV'),
-    ('STVC - EE', 'STVC'),
-    ('GEU - HUST', 'GEU'),
-    ('CEVEC - SAPD', 'CEVEC'),
-    ('OPDC - HRF - OD', 'OPDC'),
-    ('CEVEC - GSD', 'CEVEC'),
-    ('GEU - TM', 'GEU'),
-    ('STVC - R&D - DTR', 'STVC'),
-    ('STVC - R&D - DPS', 'STVC'),
-    ('STVC - R&D - AIR', 'STVC'),
-    ('PAO - PEC', 'PAO'),
-    ('GEU - DUT', 'GEU'),
-    ('OPDC - HRD - L&D', 'OPDC'),
-    ('OPDC - HRD - TI', 'OPDC'),
-    ('OPDC - HRF - TA', 'OPDC'),
-    ('GEU - UET', 'GEU'),
-    ('STVC - R&D - SDX', 'STVC'),
-    ('OPDC - HRD - HRBP', 'OPDC'),
-    ('CEVC1 - DSV - UI/UX 2', 'CEVC1'),
-    ('STVC - Infra', 'STVC'),
-    ('CPV - CGP', 'CPV'),
-    ('GEU - UIT', 'GEU'),
-    ('OPDC - HRD', 'OPDC'),
-    ('PAO - PAO', 'PAO');
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kudos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kudo_media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kudo_hashtags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE kudo_likes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE secret_boxes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE gifts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE departments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hero_titles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hashtags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE award_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE award_prizes ENABLE ROW LEVEL SECURITY;
+
+-- Profiles
+CREATE POLICY "Profiles viewable by everyone" ON profiles FOR SELECT USING (true);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Kudos
+CREATE POLICY "Kudos viewable by everyone" ON kudos FOR SELECT USING (true);
+CREATE POLICY "Authenticated can create kudos" ON kudos FOR INSERT WITH CHECK (auth.uid() = sender_id);
+
+-- Kudo media
+CREATE POLICY "Kudo media viewable by everyone" ON kudo_media FOR SELECT USING (true);
+CREATE POLICY "Media created with kudo" ON kudo_media FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM kudos WHERE kudos.id = kudo_id AND kudos.sender_id = auth.uid())
+);
+
+-- Kudo hashtags
+CREATE POLICY "Kudo hashtags viewable by everyone" ON kudo_hashtags FOR SELECT USING (true);
+CREATE POLICY "Hashtags added with kudo" ON kudo_hashtags FOR INSERT WITH CHECK (
+    EXISTS (SELECT 1 FROM kudos WHERE kudos.id = kudo_id AND kudos.sender_id = auth.uid())
+);
+
+-- Likes
+CREATE POLICY "Likes viewable by everyone" ON kudo_likes FOR SELECT USING (true);
+CREATE POLICY "Users can like" ON kudo_likes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can unlike own" ON kudo_likes FOR DELETE USING (auth.uid() = user_id);
+
+-- Secret boxes
+CREATE POLICY "Users see own secret boxes" ON secret_boxes FOR SELECT USING (auth.uid() = user_id);
+
+-- Gifts
+CREATE POLICY "Gifts viewable by everyone" ON gifts FOR SELECT USING (true);
+
+-- Reference tables (read-only for all)
+CREATE POLICY "Departments viewable" ON departments FOR SELECT USING (true);
+CREATE POLICY "Hero titles viewable" ON hero_titles FOR SELECT USING (true);
+CREATE POLICY "Categories viewable" ON categories FOR SELECT USING (true);
+CREATE POLICY "Hashtags viewable" ON hashtags FOR SELECT USING (true);
+CREATE POLICY "Award categories viewable" ON award_categories FOR SELECT USING (true);
+CREATE POLICY "Award prizes viewable" ON award_prizes FOR SELECT USING (true);
+
+-- ==========================================
+-- TRIGGER: Auto-create profile on signup
+-- ==========================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (id, name, email, avatar_url)
+    VALUES (
+        NEW.id,
+        COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+        NEW.email,
+        NEW.raw_user_meta_data->>'avatar_url'
+    );
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ==========================================
+-- VIEW: Kudos with aggregated stats
+-- ==========================================
+CREATE OR REPLACE VIEW kudos_with_stats AS
+SELECT
+    k.*,
+    c.name AS category_name,
+    c.name_en AS category_name_en,
+    COUNT(DISTINCT kl.id) AS heart_count,
+    ARRAY_AGG(DISTINCT h.name) FILTER (WHERE h.name IS NOT NULL) AS hashtag_names
+FROM kudos k
+LEFT JOIN categories c ON c.id = k.category_id
+LEFT JOIN kudo_likes kl ON kl.kudo_id = k.id
+LEFT JOIN kudo_hashtags kh ON kh.kudo_id = k.id
+LEFT JOIN hashtags h ON h.id = kh.hashtag_id
+WHERE k.deleted_at IS NULL
+GROUP BY k.id, c.name, c.name_en;
+
+-- ==========================================
+-- RPC: Get paginated kudos feed
+-- ==========================================
+CREATE OR REPLACE FUNCTION get_kudos_feed(
+    p_cursor TIMESTAMPTZ DEFAULT NULL,
+    p_limit INT DEFAULT 10,
+    p_hashtag VARCHAR DEFAULT NULL,
+    p_department_id UUID DEFAULT NULL
+)
+RETURNS TABLE (
+    id UUID,
+    sender_id UUID,
+    recipient_id UUID,
+    content TEXT,
+    category_name VARCHAR,
+    heart_count BIGINT,
+    hashtag_names VARCHAR[],
+    created_at TIMESTAMPTZ
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        ks.id,
+        ks.sender_id,
+        ks.recipient_id,
+        ks.content,
+        ks.category_name,
+        ks.heart_count,
+        ks.hashtag_names,
+        ks.created_at
+    FROM kudos_with_stats ks
+    JOIN profiles ps ON ps.id = ks.sender_id
+    JOIN profiles pr ON pr.id = ks.recipient_id
+    WHERE (p_cursor IS NULL OR ks.created_at < p_cursor)
+      AND (p_hashtag IS NULL OR p_hashtag = ANY(ks.hashtag_names))
+      AND (p_department_id IS NULL OR ps.department_id = p_department_id OR pr.department_id = p_department_id)
+    ORDER BY ks.created_at DESC
+    LIMIT p_limit;
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+-- ==========================================
+-- RPC: Get top 5 highlighted kudos
+-- ==========================================
+CREATE OR REPLACE FUNCTION get_highlight_kudos(
+    p_hashtag VARCHAR DEFAULT NULL,
+    p_department_id UUID DEFAULT NULL
+)
+RETURNS TABLE (
+    id UUID,
+    sender_id UUID,
+    recipient_id UUID,
+    content TEXT,
+    category_name VARCHAR,
+    heart_count BIGINT,
+    hashtag_names VARCHAR[],
+    created_at TIMESTAMPTZ
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        ks.id,
+        ks.sender_id,
+        ks.recipient_id,
+        ks.content,
+        ks.category_name,
+        ks.heart_count,
+        ks.hashtag_names,
+        ks.created_at
+    FROM kudos_with_stats ks
+    JOIN profiles ps ON ps.id = ks.sender_id
+    JOIN profiles pr ON pr.id = ks.recipient_id
+    WHERE (p_hashtag IS NULL OR p_hashtag = ANY(ks.hashtag_names))
+      AND (p_department_id IS NULL OR ps.department_id = p_department_id OR pr.department_id = p_department_id)
+    ORDER BY ks.heart_count DESC
+    LIMIT 5;
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+-- ==========================================
+-- RPC: Get user stats
+-- ==========================================
+CREATE OR REPLACE FUNCTION get_user_stats(p_user_id UUID)
+RETURNS TABLE (
+    kudos_received BIGINT,
+    kudos_sent BIGINT,
+    hearts_received BIGINT,
+    secret_boxes_opened BIGINT,
+    secret_boxes_unopened BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        (SELECT COUNT(*) FROM kudos WHERE recipient_id = p_user_id AND deleted_at IS NULL),
+        (SELECT COUNT(*) FROM kudos WHERE sender_id = p_user_id AND deleted_at IS NULL),
+        (SELECT COUNT(*) FROM kudo_likes kl JOIN kudos k ON k.id = kl.kudo_id WHERE k.recipient_id = p_user_id AND k.deleted_at IS NULL),
+        (SELECT COUNT(*) FROM secret_boxes WHERE user_id = p_user_id AND opened_at IS NOT NULL),
+        (SELECT COUNT(*) FROM secret_boxes WHERE user_id = p_user_id AND opened_at IS NULL);
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+-- ==========================================
+-- RPC: Toggle like on a kudo
+-- ==========================================
+CREATE OR REPLACE FUNCTION toggle_kudo_like(p_kudo_id UUID)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_user_id UUID := auth.uid();
+    v_exists BOOLEAN;
+BEGIN
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'Not authenticated';
+    END IF;
+
+    SELECT EXISTS(
+        SELECT 1 FROM kudo_likes WHERE kudo_id = p_kudo_id AND user_id = v_user_id
+    ) INTO v_exists;
+
+    IF v_exists THEN
+        DELETE FROM kudo_likes WHERE kudo_id = p_kudo_id AND user_id = v_user_id;
+        RETURN FALSE; -- unliked
+    ELSE
+        INSERT INTO kudo_likes (kudo_id, user_id) VALUES (p_kudo_id, v_user_id);
+        RETURN TRUE; -- liked
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ==========================================
+-- RPC: Get spotlight data (aggregated recipients)
+-- ==========================================
+CREATE OR REPLACE FUNCTION get_spotlight_data()
+RETURNS TABLE (
+    user_id UUID,
+    name VARCHAR,
+    kudos_count BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        k.recipient_id,
+        p.name,
+        COUNT(*) AS kudos_count
+    FROM kudos k
+    JOIN profiles p ON p.id = k.recipient_id
+    WHERE k.deleted_at IS NULL
+    GROUP BY k.recipient_id, p.name
+    ORDER BY kudos_count DESC;
+END;
+$$ LANGUAGE plpgsql STABLE;

@@ -243,11 +243,18 @@ As a Sun* employee using a mobile or tablet device, I want the Awards Informatio
 
 ---
 
-## API Dependencies
+## API / Database Dependencies
 
-| Endpoint | Method | Purpose | Status |
-|----------|--------|---------|--------|
-| N/A (MVP) | - | Award categories are static data defined as constants | Static |
+> **Database deployed**: Award categories and prizes are now in Supabase tables `award_categories` and `award_prizes` (bilingual VN/EN).
+
+| Source | Method | Purpose | Status |
+|--------|--------|---------|--------|
+| `award_categories` table | `supabase.from('award_categories').select('*, award_prizes(*)').order('sort_order')` | Fetch all awards with prizes | ✅ DB Ready |
+| `awards-data.ts` | `getAwardCategories(language)` | Bilingual data helper (currently uses static data, can switch to DB) | ✅ Implemented |
+| i18n | `t("awards.pageTitle")`, `t("awards.quantityLabel")`, etc. | UI labels translation | ✅ Implemented |
+
+**Current**: Uses `getAwardCategories(language)` from `src/utils/awards-data.ts` (bilingual static data).
+**Future**: Can replace with Supabase query on `award_categories` + `award_prizes` tables for dynamic content.
 
 ---
 
@@ -297,8 +304,9 @@ As a Sun* employee using a mobile or tablet device, I want the Awards Informatio
 - [ ] Award thumbnail image assets downloaded from Figma — 6 images (336x336px with golden ring/glow)
 - [ ] Keyvisual banner image asset downloaded from Figma (1440x547px)
 - [ ] KUDOS branding graphic asset downloaded from Figma
-- [ ] API specifications available (`.momorph/contexts/api-docs.yaml`) — N/A for MVP (static data)
-- [ ] Database design completed — N/A for MVP (no DB queries)
+- [x] Database schema deployed — `award_categories` + `award_prizes` tables with bilingual data
+- [x] Seed data deployed — 6 award categories + 7 prize entries
+- [x] i18n system — UI labels translated (VN/EN)
 
 ---
 

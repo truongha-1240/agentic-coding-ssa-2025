@@ -258,10 +258,10 @@ The Login page is the entry point for the **Sun Annual Awards (SAA) 2025** appli
 
 ## Dependencies
 
-- [x] Constitution document exists (`.momorph/constitution.md`)
-- [ ] API specifications available (`.momorph/API.yml`) — not yet created
-- [ ] Database design completed (`.momorph/database.sql`) — not yet created
-- [ ] Screen flow documented (`.momorph/SCREENFLOW.md`) — not yet created
+- [x] Constitution document (`.momorph/constitution.md`) — includes i18n + DB rules
+- [x] Database schema deployed — `profiles` table with `handle_new_user()` trigger (auto-creates profile on Google OAuth signup)
+- [x] Supabase Auth configured with Google OAuth provider
+- [ ] Screen flow documented (`.momorph/SCREENFLOW.md`)
 
 ---
 
