@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
@@ -19,9 +19,9 @@ describe("CopyLinkButton", () => {
 		);
 		render(<CopyLinkButton url="https://example.com/kudo/1" />);
 
-		const button = screen.getByRole("button", { name: /sao chép liên kết/i });
+		const button = screen.getByRole("button", { name: /aria\.copyLink/i });
 		expect(button).toBeInTheDocument();
-		expect(screen.getByText("Sao chép link")).toBeInTheDocument();
+		expect(screen.getByText("actions.copyLink")).toBeInTheDocument();
 	});
 
 	it("copies URL to clipboard on click", async () => {
@@ -32,8 +32,7 @@ describe("CopyLinkButton", () => {
 		render(<CopyLinkButton url="https://example.com/kudo/1" />);
 
 		await user.click(screen.getByRole("button"));
-		// Verify clipboard was called — toast appearing confirms the copy succeeded
-		expect(screen.getByRole("status")).toHaveTextContent(/link copied/i);
+		expect(screen.getByRole("status")).toHaveTextContent(/toast\.linkCopied/i);
 	});
 
 	it("shows toast with fixed positioning after copying", async () => {
@@ -47,7 +46,6 @@ describe("CopyLinkButton", () => {
 		const toast = screen.getByRole("status");
 		expect(toast).toBeInTheDocument();
 		expect(toast).toHaveClass("fixed", "bottom-6", "right-6", "z-50");
-		expect(toast).toHaveTextContent(/link copied/i);
 	});
 
 	it("auto-dismisses toast after 3 seconds", async () => {

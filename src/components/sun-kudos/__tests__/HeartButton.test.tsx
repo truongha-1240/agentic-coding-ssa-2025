@@ -14,7 +14,7 @@ describe("HeartButton", () => {
 			/>,
 		);
 
-		const button = screen.getByRole("button", { name: /thích kudos này/i });
+		const button = screen.getByRole("button", { name: /aria\.heartButton/i });
 		expect(button).toBeInTheDocument();
 		expect(button).toHaveAttribute("aria-pressed", "false");
 		expect(screen.getByText("5")).toBeInTheDocument();
@@ -31,7 +31,7 @@ describe("HeartButton", () => {
 			/>,
 		);
 
-		const button = screen.getByRole("button", { name: /bỏ thích kudos này/i });
+		const button = screen.getByRole("button", { name: /aria\.heartButtonActive/i });
 		expect(button).toHaveAttribute("aria-pressed", "true");
 		expect(screen.getByText("10")).toBeInTheDocument();
 	});

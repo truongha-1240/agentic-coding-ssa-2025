@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import { TargetIcon } from "@/components/icons/TargetIcon";
 import { DiamondIcon } from "@/components/icons/DiamondIcon";
 import { LicenseIcon } from "@/components/icons/LicenseIcon";
+import { useTranslation } from "@/i18n";
 import type { AwardDetailCategory } from "@/types/awards";
 
 interface AwardCardProps {
@@ -11,6 +14,7 @@ interface AwardCardProps {
 }
 
 export function AwardCard({ category, variant, isLast = false }: AwardCardProps) {
+	const { t } = useTranslation();
 	const { name, slug, description, thumbnailPath, quantity, unit, prizes } =
 		category;
 
@@ -55,7 +59,7 @@ export function AwardCard({ category, variant, isLast = false }: AwardCardProps)
 					<div className="flex flex-row gap-4 items-center flex-wrap">
 						<DiamondIcon className="w-6 h-6 text-[var(--color-text-gold)]" />
 						<span className="text-2xl font-bold leading-8 text-[var(--color-text-gold)]">
-							Số lượng giải thưởng:
+							{t("awards.quantityLabel")}
 						</span>
 						<span className="text-[45px] font-bold leading-[52px] text-white">
 							{quantity}
@@ -75,7 +79,7 @@ export function AwardCard({ category, variant, isLast = false }: AwardCardProps)
 								<div className="flex items-center gap-4 mb-8">
 									<div className="flex-1 h-px bg-[#2E3940]" />
 									<span className="text-sm font-bold leading-5 text-[#2E3940]">
-										Hoặc
+										{t("awards.orSeparator")}
 									</span>
 									<div className="flex-1 h-px bg-[#2E3940]" />
 								</div>
@@ -84,7 +88,7 @@ export function AwardCard({ category, variant, isLast = false }: AwardCardProps)
 								<div className="flex flex-row gap-4 items-center">
 									<LicenseIcon className="w-6 h-6 text-[var(--color-text-gold)]" />
 									<span className="text-2xl font-bold leading-8 text-[var(--color-text-gold)]">
-										Giá trị giải thưởng:
+										{t("awards.prizeLabel")}
 									</span>
 								</div>
 								<div className="flex flex-row items-baseline gap-4">

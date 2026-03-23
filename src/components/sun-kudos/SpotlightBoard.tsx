@@ -4,10 +4,11 @@ import { useState, useCallback, useRef } from "react";
 import { SectionHeader } from "@/components/sun-kudos/SectionHeader";
 import { SpotlightSearch } from "@/components/sun-kudos/SpotlightSearch";
 import { PanZoomIcon } from "@/components/icons/PanZoomIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import { useSpotlightData } from "@/hooks/useSpotlightData";
 
 export function SpotlightBoard() {
+	const { t } = useTranslation();
 	const { nodes, totalKudos } = useSpotlightData();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isPanZoomActive, setIsPanZoomActive] = useState(false);
@@ -60,7 +61,7 @@ export function SpotlightBoard() {
 
 	return (
 		<div className="flex flex-col items-center gap-8 w-full">
-			<SectionHeader title={SUN_KUDOS_TEXTS.sections.spotlightBoard} />
+			<SectionHeader title={t("sections.spotlightBoard")} />
 
 			<div className="w-full rounded-2xl overflow-hidden bg-[rgba(0,16,26,0.9)]">
 				{/* Toolbar */}
@@ -95,7 +96,7 @@ export function SpotlightBoard() {
 					onMouseLeave={handleMouseUp}
 					onWheel={handleWheel}
 					role="img"
-					aria-label={SUN_KUDOS_TEXTS.aria.spotlightBoard}
+					aria-label={t("aria.spotlightBoard")}
 				>
 					<svg
 						width="100%"

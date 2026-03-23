@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { KudoPostCard } from "@/components/sun-kudos/KudoPostCard";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import type { Kudo } from "@/types/kudos";
 
 interface KudosFeedProps {
@@ -22,6 +22,7 @@ export function KudosFeed({
 	onLike,
 	onHashtagClick,
 }: KudosFeedProps) {
+	const { t } = useTranslation();
 	const sentinelRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -42,10 +43,10 @@ export function KudosFeed({
 	}, [hasMore, isLoading, onLoadMore]);
 
 	return (
-		<div role="feed" aria-label={SUN_KUDOS_TEXTS.aria.kudosFeed}>
+		<div role="feed" aria-label={t("aria.kudosFeed")}>
 			{kudos.length === 0 && !isLoading ? (
 				<p className="text-center text-white/50 py-12">
-					{SUN_KUDOS_TEXTS.feed.emptyState}
+					{t("feed.emptyState")}
 				</p>
 			) : (
 				kudos.map((kudo) => (

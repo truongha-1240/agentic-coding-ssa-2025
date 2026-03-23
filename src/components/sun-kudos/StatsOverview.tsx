@@ -1,6 +1,8 @@
+"use client";
+
 import { GiftBoxIcon } from "@/components/icons/GiftBoxIcon";
 import { HeartIcon } from "@/components/icons/HeartIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import { formatHeartCount } from "@/utils/format-kudos";
 import type { UserStats } from "@/types/kudos";
 
@@ -30,26 +32,27 @@ function StatRow({
 }
 
 export function StatsOverview({ stats, onOpenSecretBox }: StatsOverviewProps) {
+	const { t } = useTranslation();
 	const isDisabled = stats.secretBoxesUnopened === 0;
 
 	return (
 		<div className="flex flex-col gap-4">
 			<StatRow
-				label={SUN_KUDOS_TEXTS.sidebar.kudosReceived}
+				label={t("sidebar.kudosReceived")}
 				value={stats.kudosReceived}
 			/>
 			<StatRow
-				label={SUN_KUDOS_TEXTS.sidebar.kudosSent}
+				label={t("sidebar.kudosSent")}
 				value={stats.kudosSent}
 			/>
 			<StatRow
-				label={SUN_KUDOS_TEXTS.sidebar.heartsReceived}
+				label={t("sidebar.heartsReceived")}
 				value={stats.heartsReceived}
 			>
 				<span className="inline-flex items-center ml-2">
 					<HeartIcon className="w-4 h-4 text-[var(--color-text-gold)]" filled />
 					<span className="text-sm font-bold text-[var(--color-text-gold)] ml-0.5">
-						{SUN_KUDOS_TEXTS.sidebar.heartMultiplier}
+						{t("sidebar.heartMultiplier")}
 					</span>
 				</span>
 			</StatRow>
@@ -57,11 +60,11 @@ export function StatsOverview({ stats, onOpenSecretBox }: StatsOverviewProps) {
 			<div className="h-px bg-[var(--color-border-footer)]" role="separator" />
 
 			<StatRow
-				label={SUN_KUDOS_TEXTS.sidebar.secretBoxesOpened}
+				label={t("sidebar.secretBoxesOpened")}
 				value={stats.secretBoxesOpened}
 			/>
 			<StatRow
-				label={SUN_KUDOS_TEXTS.sidebar.secretBoxesUnopened}
+				label={t("sidebar.secretBoxesUnopened")}
 				value={stats.secretBoxesUnopened}
 			/>
 
@@ -76,7 +79,7 @@ export function StatsOverview({ stats, onOpenSecretBox }: StatsOverviewProps) {
 				}`}
 			>
 				<GiftBoxIcon className="w-6 h-6" />
-				{SUN_KUDOS_TEXTS.sidebar.openSecretBox}
+				{t("sidebar.openSecretBox")}
 			</button>
 		</div>
 	);

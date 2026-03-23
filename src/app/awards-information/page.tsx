@@ -3,18 +3,16 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SectionTitle } from "@/components/awards-information/SectionTitle";
-import { AwardsLayout } from "@/components/awards-information/AwardsLayout";
+import { AwardsContent } from "@/components/awards-information/AwardsContent";
 import { AwardsKudosPromotion } from "@/components/awards-information/AwardsKudosPromotion";
-import { AWARD_DETAIL_CATEGORIES } from "@/utils/awards-data";
 import {
-	HEADER_NAV_LINKS,
 	FOOTER_NAV_LINKS,
 } from "@/utils/homepage-data";
 
 export default function AwardsInformationPage() {
 	return (
 		<>
-			<Header navLinks={HEADER_NAV_LINKS} showNotification>
+			<Header showNotification>
 				<ProfileDropdown />
 			</Header>
 			<main className="relative bg-[var(--color-bg-primary)]">
@@ -63,7 +61,7 @@ export default function AwardsInformationPage() {
 					/>
 
 					<SectionTitle />
-					<AwardsLayout categories={AWARD_DETAIL_CATEGORIES} />
+					<AwardsContent />
 					<AwardsKudosPromotion />
 				</div>
 			</main>

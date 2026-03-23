@@ -8,7 +8,7 @@ describe("SectionHeader", () => {
 		);
 		render(<SectionHeader title="ALL KUDOS" />);
 
-		expect(screen.getByText("Sun* Annual Awards 2025")).toBeInTheDocument();
+		expect(screen.getByText("sections.sectionSubtitle")).toBeInTheDocument();
 	});
 
 	it("renders divider element", async () => {

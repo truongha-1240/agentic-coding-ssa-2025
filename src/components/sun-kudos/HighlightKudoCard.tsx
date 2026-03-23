@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import type { HighlightKudo } from "@/types/kudos";
 import { HeartButton } from "@/components/sun-kudos/HeartButton";
@@ -5,7 +7,7 @@ import { CopyLinkButton } from "@/components/sun-kudos/CopyLinkButton";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { ArrowUpRightIcon } from "@/components/icons/ArrowUpRightIcon";
 import { StarIcon } from "@/components/icons/StarIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import { formatTimestamp } from "@/utils/format-kudos";
 
 interface HighlightKudoCardProps {
@@ -37,6 +39,8 @@ export function HighlightKudoCard({
 	onLike,
 	isFeatured = false,
 }: HighlightKudoCardProps) {
+	const { t } = useTranslation();
+
 	return (
 		<article
 			className={`rounded-2xl overflow-hidden flex flex-col bg-[#FFF8E1] transition-all duration-200 hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)] ${
@@ -149,7 +153,7 @@ export function HighlightKudoCard({
 						href={`/sun-kudos/kudo/${kudo.id}`}
 						className="flex items-center gap-1 text-sm font-bold text-[#1a1a1a] transition-colors duration-150 hover:text-[#B8860B] focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2"
 					>
-						{SUN_KUDOS_TEXTS.highlight.viewDetail}
+						{t("highlight.viewDetail")}
 						<ArrowUpRightIcon className="w-4 h-4" />
 					</a>
 				</div>

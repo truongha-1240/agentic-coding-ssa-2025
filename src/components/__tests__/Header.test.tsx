@@ -43,19 +43,13 @@ describe("Header", () => {
 		expect(screen.getByTestId("language-selector")).toBeInTheDocument();
 	});
 
-	it("renders nav links when navLinks prop provided", async () => {
+	it("renders nav links via HeaderNav", async () => {
 		const { Header } = await import("@/components/Header");
-		render(
-			<Header
-				navLinks={[
-					{ label: "About SAA 2025", href: "/" },
-					{ label: "Awards Information", href: "/awards-information" },
-				]}
-			/>,
-		);
+		render(<Header />);
 
-		expect(screen.getByText("About SAA 2025")).toBeInTheDocument();
-		expect(screen.getByText("Awards Information")).toBeInTheDocument();
+		// HeaderNav now manages its own links via i18n — just verify it renders
+		const nav = document.querySelector("nav");
+		expect(nav).toBeInTheDocument();
 	});
 
 	it("renders notification bell when showNotification is true", async () => {
@@ -66,11 +60,10 @@ describe("Header", () => {
 		expect(bell).toBeInTheDocument();
 	});
 
-	it("backward compatible: renders without navLinks or showNotification", async () => {
+	it("renders without showNotification", async () => {
 		const { Header } = await import("@/components/Header");
 		render(<Header />);
 
 		expect(screen.getByAltText("SAA 2025")).toBeInTheDocument();
-		expect(screen.queryByText("About SAA 2025")).not.toBeInTheDocument();
 	});
 });

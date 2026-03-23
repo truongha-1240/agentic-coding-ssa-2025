@@ -2,18 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { NavLink } from "@/types/homepage";
+import { useTranslation } from "@/i18n";
 
-interface HeaderNavProps {
-	links: NavLink[];
+interface NavLinkItem {
+	labelKey: string;
+	href: string;
 }
 
-export function HeaderNav({ links }: HeaderNavProps) {
+const NAV_LINKS: NavLinkItem[] = [
+	{ labelKey: "header.aboutSaa", href: "/" },
+	{ labelKey: "header.awardsInfo", href: "/awards-information" },
+	{ labelKey: "header.sunKudos", href: "/sun-kudos" },
+];
+
+export function HeaderNav() {
 	const pathname = usePathname();
+	const { t } = useTranslation();
 
 	return (
 		<nav className="hidden lg:flex items-center gap-1">
-			{links.map((link) => {
+			{NAV_LINKS.map((link) => {
 				const isActive = pathname === link.href;
 				return (
 					<Link
@@ -25,7 +33,7 @@ export function HeaderNav({ links }: HeaderNavProps) {
 								: "text-white hover:bg-white/10"
 						}`}
 					>
-						{link.label}
+						{t(link.labelKey as Parameters<typeof t>[0])}
 					</Link>
 				);
 			})}

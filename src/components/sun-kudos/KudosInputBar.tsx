@@ -1,13 +1,15 @@
 "use client";
 
 import { PenIcon } from "@/components/icons/PenIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 
 interface KudosInputBarProps {
 	onWriteKudo: () => void;
 }
 
 export function KudosInputBar({ onWriteKudo }: KudosInputBarProps) {
+	const { t } = useTranslation();
+
 	return (
 		<button
 			type="button"
@@ -16,7 +18,7 @@ export function KudosInputBar({ onWriteKudo }: KudosInputBarProps) {
 		>
 			<PenIcon className="w-6 h-6 shrink-0" />
 			<span className="opacity-50">
-				{SUN_KUDOS_TEXTS.kvBanner.inputPlaceholder}
+				{t("kvBanner.inputPlaceholder")}
 			</span>
 		</button>
 	);

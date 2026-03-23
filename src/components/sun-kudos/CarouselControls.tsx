@@ -1,5 +1,7 @@
+"use client";
+
 import { ChevronRightIcon } from "@/components/icons/ChevronRightIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 
 interface CarouselControlsProps {
 	currentPage: number;
@@ -14,6 +16,7 @@ export function CarouselControls({
 	onPrev,
 	onNext,
 }: CarouselControlsProps) {
+	const { t } = useTranslation();
 	const isPrevDisabled = currentPage === 0;
 	const isNextDisabled = currentPage === totalPages - 1;
 
@@ -21,7 +24,7 @@ export function CarouselControls({
 		<div className="flex items-center gap-4">
 			<button
 				type="button"
-				aria-label={SUN_KUDOS_TEXTS.aria.carouselPrev}
+				aria-label={t("aria.carouselPrev")}
 				onClick={onPrev}
 				disabled={isPrevDisabled}
 				className={`w-12 h-12 rounded-full border border-[var(--color-border-gold)] flex items-center justify-center text-[var(--color-text-gold)] transition-opacity duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2 ${
@@ -43,7 +46,7 @@ export function CarouselControls({
 
 			<button
 				type="button"
-				aria-label={SUN_KUDOS_TEXTS.aria.carouselNext}
+				aria-label={t("aria.carouselNext")}
 				onClick={onNext}
 				disabled={isNextDisabled}
 				className={`w-12 h-12 rounded-full border border-[var(--color-border-gold)] flex items-center justify-center text-[var(--color-text-gold)] transition-opacity duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2 ${
