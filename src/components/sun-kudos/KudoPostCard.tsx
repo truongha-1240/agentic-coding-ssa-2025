@@ -30,7 +30,7 @@ export function KudoPostCard({ kudo, onLike, onHashtagClick }: KudoPostCardProps
 				</span>
 				{" "}
 				<span className="text-sm font-bold text-[var(--color-text-gold)]">
-					{kudo.category}
+					{kudo.title}
 				</span>
 			</div>
 

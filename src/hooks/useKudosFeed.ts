@@ -11,7 +11,8 @@ interface RpcFeedRow {
 	sender_id: string;
 	recipient_id: string;
 	content: string;
-	category_name: string;
+	title: string;
+	is_anonymous: boolean;
 	heart_count: number;
 	hashtag_names: string[] | null;
 	created_at: string;
@@ -99,7 +100,8 @@ async function fetchProfilesAndMedia(
 			title: "",
 		},
 		content: row.content,
-		category: row.category_name || "",
+		title: row.title || "",
+		isAnonymous: row.is_anonymous || false,
 		hashtags: row.hashtag_names || [],
 		images: mediaMap.get(row.id) || [],
 		heartCount: row.heart_count || 0,
@@ -142,7 +144,7 @@ export function useKudosFeed() {
 				// Fallback: direct query
 				let query = supabase
 					.from("kudos")
-					.select("id, sender_id, recipient_id, content, category:categories(name), created_at")
+					.select("id, sender_id, recipient_id, content, title, is_anonymous, created_at")
 					.is("deleted_at", null)
 					.order("created_at", { ascending: false })
 					.limit(PAGE_SIZE);
@@ -156,7 +158,8 @@ export function useKudosFeed() {
 					sender_id: r.sender_id as string,
 					recipient_id: r.recipient_id as string,
 					content: r.content as string,
-					category_name: (r.category as Record<string, string>)?.name || "",
+					title: (r.title as string) || "",
+					is_anonymous: (r.is_anonymous as boolean) || false,
 					heart_count: 0,
 					hashtag_names: null,
 					created_at: r.created_at as string,

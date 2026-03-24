@@ -12,7 +12,8 @@ export interface Kudo {
 	sender: KudoUser;
 	recipient: KudoUser;
 	content: string;
-	category: string;
+	title: string;
+	isAnonymous: boolean;
 	hashtags: string[];
 	images: KudoMedia[];
 	heartCount: number;

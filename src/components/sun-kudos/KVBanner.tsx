@@ -4,7 +4,11 @@ import Image from "next/image";
 import { useTranslation } from "@/i18n";
 import { KVBannerActions } from "@/components/sun-kudos/KVBannerActions";
 
-export function KVBanner() {
+interface KVBannerProps {
+	onWriteKudo?: () => void;
+}
+
+export function KVBanner({ onWriteKudo }: KVBannerProps) {
 	const { t } = useTranslation();
 
 	return (
@@ -29,7 +33,7 @@ export function KVBanner() {
 			</div>
 
 			{/* Input bar + Search bar row (Client Component boundary) */}
-			<KVBannerActions />
+			<KVBannerActions onWriteKudo={onWriteKudo} />
 		</div>
 	);
 }

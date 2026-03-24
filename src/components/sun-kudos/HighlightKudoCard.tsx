@@ -6,7 +6,6 @@ import { HeartButton } from "@/components/sun-kudos/HeartButton";
 import { CopyLinkButton } from "@/components/sun-kudos/CopyLinkButton";
 import { ArrowRightIcon } from "@/components/icons/ArrowRightIcon";
 import { ArrowUpRightIcon } from "@/components/icons/ArrowUpRightIcon";
-import { StarIcon } from "@/components/icons/StarIcon";
 import { useTranslation } from "@/i18n";
 import { formatTimestamp } from "@/utils/format-kudos";
 
@@ -110,7 +109,7 @@ export function HighlightKudoCard({
 
 				{/* Category label */}
 				<p className="text-sm font-bold text-[#1a1a1a] text-center uppercase tracking-wider">
-					{kudo.category}
+					{kudo.title}
 				</p>
 
 				{/* Content in inner cream box */}

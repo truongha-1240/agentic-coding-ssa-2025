@@ -5,7 +5,7 @@ import { ProfileDropdown } from "@/components/ProfileDropdown";
 import {
 	FOOTER_NAV_LINKS,
 } from "@/utils/homepage-data";
-import { KVBanner } from "@/components/sun-kudos/KVBanner";
+import { SunKudosClient } from "@/components/sun-kudos/SunKudosClient";
 import { AllKudosSection } from "@/components/sun-kudos/AllKudosSection";
 import { HighlightKudos } from "@/components/sun-kudos/HighlightKudos";
 import { SpotlightBoard } from "@/components/sun-kudos/SpotlightBoard";
@@ -50,8 +50,8 @@ export default function SunKudosPage() {
 
 				{/* "Bìa" content container */}
 				<div className="relative z-[3] flex flex-col items-center gap-16 lg:gap-[120px] pt-[120px] lg:pt-[176px] pb-16 lg:pb-24 px-6 md:px-12 lg:px-36">
-					{/* KV Banner */}
-					<KVBanner />
+					{/* KV Banner + Write Kudo Modal */}
+					<SunKudosClient />
 
 					{/* Highlight Kudos */}
 					<HighlightKudos />
