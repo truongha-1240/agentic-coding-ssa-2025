@@ -19,20 +19,19 @@ export function useRecipientSearch(query: string) {
 	useEffect(() => {
 		if (timerRef.current) clearTimeout(timerRef.current);
 
-		if (query.trim().length < 1) {
-			setResults([]);
-			setIsSearching(false);
-			return;
-		}
-
 		setIsSearching(true);
 		timerRef.current = setTimeout(async () => {
 			const supabase = createClient();
-			const { data, error } = await supabase
+			let queryBuilder = supabase
 				.from("profiles")
 				.select("id, name, email, avatar_url, department:departments(name)")
-				.ilike("name", `%${query}%`)
 				.limit(10);
+
+			if (query.trim().length > 0) {
+				queryBuilder = queryBuilder.ilike("name", `%${query}%`);
+			}
+
+			const { data, error } = await queryBuilder;
 
 			if (!error && data) {
 				setResults(

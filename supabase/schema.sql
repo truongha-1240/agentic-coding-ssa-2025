@@ -175,6 +175,17 @@ CREATE POLICY "Hashtags viewable" ON hashtags FOR SELECT USING (true);
 CREATE POLICY "Award categories viewable" ON award_categories FOR SELECT USING (true);
 CREATE POLICY "Award prizes viewable" ON award_prizes FOR SELECT USING (true);
 
+-- Storage policies for kudo-images bucket
+CREATE POLICY "Authenticated users can upload kudo images"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'kudo-images');
+
+CREATE POLICY "Anyone can view kudo images"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'kudo-images');
+
 -- 4. TRIGGER: Auto-create profile on signup
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()

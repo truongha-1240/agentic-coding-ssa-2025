@@ -28,6 +28,8 @@ function mapProfileToKudoUser(profile: Record<string, unknown>): KudoUser {
 		department: dept?.name || "",
 		starCount: (profile.star_count as number) || 0,
 		title: heroTitle?.name || "",
+		heroTitle: heroTitle?.name || undefined,
+		heroTitleColor: heroTitle?.color || undefined,
 	};
 }
 
@@ -110,7 +112,13 @@ async function fetchProfilesAndMedia(
 	}));
 }
 
-export function useKudosFeed() {
+interface UseKudosFeedOptions {
+	hashtag?: string | null;
+	departmentId?: string | null;
+}
+
+export function useKudosFeed(options: UseKudosFeedOptions = {}) {
+	const { hashtag = null, departmentId = null } = options;
 	const [kudos, setKudos] = useState<Kudo[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);

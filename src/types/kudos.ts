@@ -5,6 +5,8 @@ export interface KudoUser {
 	department: string;
 	starCount: number;
 	title: string;
+	heroTitle?: string;
+	heroTitleColor?: string;
 }
 
 export interface Kudo {

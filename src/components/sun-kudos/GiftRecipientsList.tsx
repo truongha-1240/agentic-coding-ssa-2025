@@ -6,24 +6,20 @@ import type { GiftRecipient } from "@/types/kudos";
 
 interface GiftRecipientsListProps {
 	recipients: GiftRecipient[];
-	hasMore: boolean;
-	onLoadMore: () => void;
 }
 
 export function GiftRecipientsList({
 	recipients,
-	hasMore,
-	onLoadMore,
 }: GiftRecipientsListProps) {
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex flex-col gap-4">
-			<h3 className="text-base font-bold text-[var(--color-text-gold)]">
+		<div className="flex flex-col gap-4 border border-[var(--color-border-gold)] rounded-2xl p-6">
+			<h3 className="text-lg font-extrabold text-[var(--color-text-gold)] text-center uppercase tracking-wider">
 				{t("sidebar.giftRecipientsTitle")}
 			</h3>
 
-			<div className="flex flex-col gap-3">
+			<div className="flex flex-col gap-3 max-h-80 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-thumb]:rounded-full">
 				{recipients.map((recipient) => (
 					<div key={recipient.id} className="flex items-center gap-3">
 						{recipient.isNew && (
@@ -32,31 +28,21 @@ export function GiftRecipientsList({
 						<Image
 							src={recipient.user.avatar}
 							alt={recipient.user.name}
-							width={40}
-							height={40}
-							className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+							width={48}
+							height={48}
+							className="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-[var(--color-border-gold)]"
 						/>
 						<div className="flex flex-col min-w-0">
-							<span className="text-sm font-bold text-white truncate">
+							<span className="text-base font-bold text-[var(--color-text-gold)] truncate">
 								{recipient.user.name}
 							</span>
-							<span className="text-sm text-white/50 truncate">
+							<span className="text-sm text-white truncate">
 								{recipient.description}
 							</span>
 						</div>
 					</div>
 				))}
 			</div>
-
-			{hasMore && (
-				<button
-					type="button"
-					onClick={onLoadMore}
-					className="w-full py-3 px-4 bg-transparent border border-[var(--color-border-footer)] rounded text-sm font-bold text-[var(--color-text-gold)] text-center transition-colors hover:bg-[rgba(255,234,158,0.1)]"
-				>
-					{t("sidebar.viewMore")}
-				</button>
-			)}
 		</div>
 	);
 }

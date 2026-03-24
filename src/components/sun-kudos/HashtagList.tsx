@@ -16,9 +16,9 @@ export function HashtagList({ hashtags, onHashtagClick }: HashtagListProps) {
 					key={tag}
 					type="button"
 					onClick={() => onHashtagClick?.(tag)}
-					className="bg-[var(--color-btn-secondary-bg)] rounded px-2 py-1 text-sm font-bold text-[var(--color-text-gold)] cursor-pointer hover:bg-[rgba(255,234,158,0.2)] transition-colors duration-150"
+					className="border border-[var(--color-text-gold)]/30 rounded-full px-3 py-1 text-sm font-bold text-[var(--color-text-gold)] cursor-pointer hover:bg-[rgba(255,234,158,0.1)] transition-colors duration-150"
 				>
-					#{tag}
+					{tag.startsWith("#") ? tag : `#${tag}`}
 				</button>
 			))}
 			{hasMore && (

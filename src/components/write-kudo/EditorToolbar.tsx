@@ -74,12 +74,12 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
 					type="button"
 					onClick={btn.action}
 					disabled={!editor}
-					className={`w-10 h-10 flex items-center justify-center rounded text-[16px] transition-colors disabled:opacity-30 ${
+					className={`w-10 h-10 flex items-center justify-center rounded border border-[#998C5F]/50 text-[16px] text-[#1a1a1a] transition-colors disabled:opacity-30 cursor-pointer ${
 						btn.style ? `${btn.style}` : ""
 					} ${
 						btn.isActive
-							? "bg-[rgba(0,0,0,0.1)]"
-							: "hover:bg-[rgba(0,0,0,0.05)]"
+							? "bg-[#00101A]/10 border-[#998C5F]"
+							: "hover:bg-[#00101A]/5"
 					}`}
 				>
 					{btn.icon || btn.label}

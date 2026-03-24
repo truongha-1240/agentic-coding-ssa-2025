@@ -6,10 +6,15 @@ import type { KudoUser } from "@/types/kudos";
 interface UserInfoProps {
 	user: KudoUser;
 	size?: "small" | "default";
+	variant?: "dark" | "light";
 }
 
-export function UserInfo({ user, size = "default" }: UserInfoProps) {
+export function UserInfo({ user, size = "default", variant = "dark" }: UserInfoProps) {
 	const avatarSize = size === "small" ? 32 : 48;
+	const isDark = variant === "dark";
+	const nameColor = isDark ? "text-white" : "text-[#00101A]";
+	const nameHover = isDark ? "hover:text-[var(--color-text-gold)]" : "hover:text-[#998C5F]";
+	const subColor = isDark ? "text-white/50" : "text-[#00101A]/50";
 
 	return (
 		<div className="flex items-center gap-2 min-w-0">
@@ -27,12 +32,12 @@ export function UserInfo({ user, size = "default" }: UserInfoProps) {
 				/>
 				<div className="flex flex-col min-w-0">
 					<span
-						className={`font-bold text-white hover:text-[var(--color-text-gold)] transition-colors duration-150 truncate ${size === "small" ? "text-xs" : "text-sm"}`}
+						className={`font-bold ${nameColor} ${nameHover} transition-colors duration-150 truncate ${size === "small" ? "text-xs" : "text-sm"}`}
 					>
 						{user.name}
 					</span>
 					<div className="flex items-center gap-1.5 flex-wrap">
-						<span className="text-[10px] text-white/50">{user.department}</span>
+						<span className={`text-[10px] ${subColor}`}>{user.department}</span>
 						<span className="flex items-center gap-0.5 text-[var(--color-text-gold)]">
 							<StarIcon className="w-2.5 h-2.5" />
 							<span className="text-[10px] font-bold">

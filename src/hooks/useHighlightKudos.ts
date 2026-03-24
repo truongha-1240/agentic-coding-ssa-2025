@@ -26,6 +26,8 @@ function mapProfileToKudoUser(profile: Record<string, unknown>): KudoUser {
 		department: dept?.name || "",
 		starCount: (profile.star_count as number) || 0,
 		title: heroTitle?.name || "",
+		heroTitle: heroTitle?.name || undefined,
+		heroTitleColor: heroTitle?.color || undefined,
 	};
 }
 
@@ -36,7 +38,13 @@ interface UseHighlightKudosReturn {
 	refetch: () => void;
 }
 
-export function useHighlightKudos(): UseHighlightKudosReturn {
+interface UseHighlightKudosOptions {
+	hashtag?: string | null;
+	departmentId?: string | null;
+}
+
+export function useHighlightKudos(options: UseHighlightKudosOptions = {}): UseHighlightKudosReturn {
+	const { hashtag = null, departmentId = null } = options;
 	const [highlights, setHighlights] = useState<HighlightKudo[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -54,8 +62,8 @@ export function useHighlightKudos(): UseHighlightKudosReturn {
 			const { data: rows, error: rpcError } = await supabase.rpc(
 				"get_highlight_kudos",
 				{
-					p_hashtag: null,
-					p_department_id: null,
+					p_hashtag: hashtag || null,
+					p_department_id: departmentId || null,
 				},
 			);
 
@@ -171,7 +179,7 @@ export function useHighlightKudos(): UseHighlightKudosReturn {
 		} finally {
 			setIsLoading(false);
 		}
-	}, []);
+	}, [hashtag, departmentId]);
 
 	useEffect(() => {
 		fetchHighlights();

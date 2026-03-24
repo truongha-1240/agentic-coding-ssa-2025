@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat, Montserrat_Alternates } from "next/font/google";
 import { Providers } from "@/app/Providers";
 import "./globals.css";
@@ -14,6 +14,13 @@ const montserratAlternates = Montserrat_Alternates({
 	subsets: ["latin", "vietnamese"],
 	variable: "--font-montserrat-alternates",
 });
+
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+	minimumScale: 1,
+	maximumScale: 5,
+};
 
 export const metadata: Metadata = {
 	title: "SAA 2025",

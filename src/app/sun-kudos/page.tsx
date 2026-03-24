@@ -25,25 +25,25 @@ export default function SunKudosPage() {
 					height={1392}
 					priority
 					sizes="100vw"
-					className="absolute top-0 left-0 w-full h-[1392px] object-cover z-[1]"
+					className="absolute top-0 left-0 w-full h-[520px] object-cover z-[1]"
 					aria-hidden="true"
 				/>
-				{/* Background layer: gradient overlay */}
+				{/* Background layer: subtle vignette overlay — keeps KV image bright */}
 				<div
-					className="absolute top-0 left-0 w-full h-[1480px] z-[2]"
+					className="absolute top-0 left-0 w-full h-[520px] z-[2]"
 					style={{
 						background:
-							"linear-gradient(12deg, #00101A 23.7%, rgba(0, 18, 29, 0.46) 38.34%, rgba(0, 19, 32, 0) 48.92%)",
+							"linear-gradient(180deg, rgba(0, 16, 26, 0.15) 0%, rgba(0, 16, 26, 0.3) 100%)",
 					}}
 					aria-hidden="true"
 				/>
-				{/* Dark overlay: smooth transition from keyvisual to solid dark page bg */}
+				{/* Dark overlay: transition from keyvisual to solid dark page bg */}
 				<div
 					className="absolute left-0 w-full bottom-0 z-[2]"
 					style={{
-						top: "600px",
+						top: "300px",
 						background:
-							"linear-gradient(to bottom, transparent 0%, rgba(0, 16, 26, 0.6) 15%, rgba(0, 16, 26, 0.9) 25%, #00101A 35%)",
+							"linear-gradient(to bottom, transparent 0%, rgba(0, 16, 26, 0.8) 30%, #00101A 50%)",
 					}}
 					aria-hidden="true"
 				/>

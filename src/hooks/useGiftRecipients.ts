@@ -29,7 +29,7 @@ export function useGiftRecipients(): UseGiftRecipientsReturn {
 						"*, recipient:profiles(*, department:departments(name), hero_title:hero_titles(name,color))",
 					)
 					.order("created_at", { ascending: false })
-					.limit(50);
+					.limit(10);
 
 				if (error) throw error;
 
@@ -77,12 +77,5 @@ export function useGiftRecipients(): UseGiftRecipientsReturn {
 		fetchGifts();
 	}, []);
 
-	const recipients = allRecipients.slice(0, visibleCount);
-	const hasMore = visibleCount < allRecipients.length;
-
-	const loadMore = useCallback(() => {
-		setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, allRecipients.length));
-	}, [allRecipients.length]);
-
-	return { recipients, hasMore, loadMore, isLoading };
+	return { recipients: allRecipients, hasMore: false, loadMore: () => {}, isLoading };
 }

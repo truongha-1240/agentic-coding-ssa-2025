@@ -1,7 +1,7 @@
 "use client";
 
 import { GiftBoxIcon } from "@/components/icons/GiftBoxIcon";
-import { HeartIcon } from "@/components/icons/HeartIcon";
+import { FireIcon } from "@/components/icons/FireIcon";
 import { useTranslation } from "@/i18n";
 import { formatHeartCount } from "@/utils/format-kudos";
 import type { UserStats } from "@/types/kudos";
@@ -22,10 +22,12 @@ function StatRow({
 }) {
 	return (
 		<div className="flex justify-between items-center">
-			<span className="text-base font-bold text-white">{label}</span>
-			<span className="flex items-center text-2xl font-bold text-[var(--color-text-gold)]">
-				{formatHeartCount(value)}
+			<span className="flex items-center gap-1 text-base font-bold text-white">
+				{label}
 				{children}
+			</span>
+			<span className="text-2xl font-bold text-[var(--color-text-gold)]">
+				{formatHeartCount(value)}
 			</span>
 		</div>
 	);
@@ -36,7 +38,7 @@ export function StatsOverview({ stats, onOpenSecretBox }: StatsOverviewProps) {
 	const isDisabled = stats.secretBoxesUnopened === 0;
 
 	return (
-		<div className="flex flex-col gap-4">
+		<div className="flex flex-col gap-4 border border-[var(--color-border-gold)] rounded-2xl p-6">
 			<StatRow
 				label={t("sidebar.kudosReceived")}
 				value={stats.kudosReceived}
@@ -49,9 +51,9 @@ export function StatsOverview({ stats, onOpenSecretBox }: StatsOverviewProps) {
 				label={t("sidebar.heartsReceived")}
 				value={stats.heartsReceived}
 			>
-				<span className="inline-flex items-center ml-2">
-					<HeartIcon className="w-4 h-4 text-[var(--color-text-gold)]" filled />
-					<span className="text-sm font-bold text-[var(--color-text-gold)] ml-0.5">
+				<span className="relative inline-flex items-center justify-center">
+					<FireIcon className="w-7 h-7" />
+					<span className="absolute text-[8px] font-bold text-white">
 						{t("sidebar.heartMultiplier")}
 					</span>
 				</span>

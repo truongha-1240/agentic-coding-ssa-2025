@@ -121,18 +121,21 @@ export function useWriteKudo() {
 					.from("kudo-images")
 					.upload(path, file, { contentType: file.type });
 
-				if (!uploadError) {
-					const {
-						data: { publicUrl },
-					} = supabase.storage.from("kudo-images").getPublicUrl(path);
-
-					await supabase.from("kudo_media").insert({
-						kudo_id: kudo.id,
-						url: publicUrl,
-						type: "image",
-						sort_order: i,
-					});
+				if (uploadError) {
+					console.error("Image upload failed:", uploadError.message);
+					continue;
 				}
+
+				const {
+					data: { publicUrl },
+				} = supabase.storage.from("kudo-images").getPublicUrl(path);
+
+				await supabase.from("kudo_media").insert({
+					kudo_id: kudo.id,
+					url: publicUrl,
+					type: "image",
+					sort_order: i,
+				});
 			}
 
 			setState(initialState);

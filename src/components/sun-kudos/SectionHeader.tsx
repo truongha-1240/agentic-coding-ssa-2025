@@ -10,7 +10,7 @@ export function SectionHeader({ title }: SectionHeaderProps) {
 	const { t } = useTranslation();
 
 	return (
-		<div className="flex flex-col items-center gap-3 w-full">
+		<div className="flex flex-col items-start gap-3 w-full">
 			<p className="text-xl font-bold text-[var(--color-text-gold)]">
 				{t("sections.sectionSubtitle")}
 			</p>
