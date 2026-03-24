@@ -1,14 +1,18 @@
+"use client";
+
 import Image from "next/image";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import { KVBannerActions } from "@/components/sun-kudos/KVBannerActions";
 
 export function KVBanner() {
+	const { t } = useTranslation();
+
 	return (
 		<div className="w-full max-w-[1152px] flex flex-col items-center gap-10 text-center">
 			{/* Title + KUDOS Logo */}
 			<div className="flex flex-col items-center gap-4">
 				<h2 className="text-xl md:text-2xl font-bold text-white">
-					{SUN_KUDOS_TEXTS.kvBanner.subtitle}
+					{t("kvBanner.subtitle")}
 				</h2>
 
 				{/* KUDOS Logo with star */}

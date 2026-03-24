@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import type { GiftRecipient } from "@/types/kudos";
 
 interface GiftRecipientsListProps {
@@ -13,10 +15,12 @@ export function GiftRecipientsList({
 	hasMore,
 	onLoadMore,
 }: GiftRecipientsListProps) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="flex flex-col gap-4">
 			<h3 className="text-base font-bold text-[var(--color-text-gold)]">
-				{SUN_KUDOS_TEXTS.sidebar.giftRecipientsTitle}
+				{t("sidebar.giftRecipientsTitle")}
 			</h3>
 
 			<div className="flex flex-col gap-3">
@@ -50,7 +54,7 @@ export function GiftRecipientsList({
 					onClick={onLoadMore}
 					className="w-full py-3 px-4 bg-transparent border border-[var(--color-border-footer)] rounded text-sm font-bold text-[var(--color-text-gold)] text-center transition-colors hover:bg-[rgba(255,234,158,0.1)]"
 				>
-					{SUN_KUDOS_TEXTS.sidebar.viewMore}
+					{t("sidebar.viewMore")}
 				</button>
 			)}
 		</div>

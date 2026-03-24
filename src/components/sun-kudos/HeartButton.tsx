@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { HeartIcon } from "@/components/icons/HeartIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import { formatHeartCount } from "@/utils/format-kudos";
 
 interface HeartButtonProps {
@@ -18,6 +18,7 @@ export function HeartButton({
 	heartCount,
 	onToggle,
 }: HeartButtonProps) {
+	const { t } = useTranslation();
 	const [optimisticLiked, setOptimisticLiked] = useState(isLiked);
 	const [optimisticCount, setOptimisticCount] = useState(heartCount);
 
@@ -34,8 +35,8 @@ export function HeartButton({
 			aria-pressed={optimisticLiked}
 			aria-label={
 				optimisticLiked
-					? SUN_KUDOS_TEXTS.aria.heartButtonActive
-					: SUN_KUDOS_TEXTS.aria.heartButton
+					? t("aria.heartButtonActive")
+					: t("aria.heartButton")
 			}
 			onClick={handleClick}
 			className="flex items-center gap-1 group focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2"

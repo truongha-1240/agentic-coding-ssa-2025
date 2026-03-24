@@ -1,113 +1,125 @@
 erDiagram
-    profiles ||--o{ kudos : "sends"
-    profiles ||--o{ kudos : "receives"
-    profiles ||--o{ kudo_reactions : "reacts"
-    profiles ||--o{ secret_boxes : "owns"
-    profiles ||--o{ user_badges : "collects"
-    profiles }o--|| departments : "belongs_to"
-
+    departments ||--o{ profiles : has
     departments {
-        bigint id PK
+        uuid id PK
         varchar name UK
-        varchar parent_name
+        varchar name_en
         timestamptz created_at
     }
 
+    hero_titles ||--o{ profiles : assigned_to
+    hero_titles {
+        uuid id PK
+        varchar name UK
+        varchar color
+        timestamptz created_at
+    }
+
+    profiles ||--o{ kudos : sends
+    profiles ||--o{ kudos : receives
+    profiles ||--o{ kudo_likes : likes
+    profiles ||--o{ secret_boxes : owns
+    profiles ||--o{ gifts : receives_gift
     profiles {
-        bigint id PK
-        uuid auth_user_id UK
-        varchar email UK
+        uuid id PK
         varchar name
+        varchar email UK
         varchar avatar_url
+        uuid department_id FK
+        uuid hero_title_id FK
+        int star_count
         varchar role
-        bigint department_id FK
         timestamptz created_at
         timestamptz updated_at
-        timestamptz deleted_at
     }
 
-    kudos ||--o{ kudo_images : "has"
-    kudos ||--o{ kudo_hashtags : "tagged_with"
-    kudos ||--o{ kudo_reactions : "receives"
+    categories ||--o{ kudos : categorizes
+    categories {
+        uuid id PK
+        varchar name UK
+        varchar name_en
+        timestamptz created_at
+    }
 
+    kudos ||--|{ kudo_media : has_media
+    kudos ||--o{ kudo_hashtags : tagged_with
+    kudos ||--o{ kudo_likes : liked_by
     kudos {
-        bigint id PK
-        bigint sender_id FK
-        bigint recipient_id FK
+        uuid id PK
+        uuid sender_id FK
+        uuid recipient_id FK
         text content
-        boolean is_anonymous
-        varchar anonymous_name
-        boolean is_highlighted
-        integer reaction_count
+        uuid category_id FK
         timestamptz created_at
         timestamptz updated_at
         timestamptz deleted_at
     }
 
-    kudo_images {
-        bigint id PK
-        bigint kudo_id FK
-        varchar image_url
-        integer display_order
+    kudo_media {
+        uuid id PK
+        uuid kudo_id FK
+        varchar url
+        varchar type
+        varchar thumbnail_url
+        int sort_order
         timestamptz created_at
     }
 
-    hashtags ||--o{ kudo_hashtags : "used_in"
-
+    hashtags ||--o{ kudo_hashtags : used_in
     hashtags {
-        bigint id PK
+        uuid id PK
         varchar name UK
         timestamptz created_at
     }
 
     kudo_hashtags {
-        bigint kudo_id PK_FK
-        bigint hashtag_id PK_FK
+        uuid id PK
+        uuid kudo_id FK
+        uuid hashtag_id FK
     }
 
-    kudo_reactions {
-        bigint id PK
-        bigint kudo_id FK
-        bigint user_id FK
-        timestamptz created_at
-    }
-
-    badges ||--o{ secret_boxes : "awarded_via"
-    badges ||--o{ user_badges : "collected_as"
-
-    badges {
-        bigint id PK
-        varchar name UK
-        varchar image_url
-        decimal drop_rate
+    kudo_likes {
+        uuid id PK
+        uuid kudo_id FK
+        uuid user_id FK
         timestamptz created_at
     }
 
     secret_boxes {
-        bigint id PK
-        bigint user_id FK
-        bigint badge_id FK
+        uuid id PK
+        uuid user_id FK
         timestamptz opened_at
+        text reward_description
         timestamptz created_at
     }
 
-    user_badges {
-        bigint id PK
-        bigint user_id FK
-        bigint badge_id FK
-        timestamptz obtained_at
+    gifts {
+        uuid id PK
+        uuid recipient_id FK
+        varchar description
+        timestamptz created_at
     }
 
+    award_categories ||--|{ award_prizes : has_prizes
     award_categories {
-        bigint id PK
+        uuid id PK
         varchar name
         varchar slug UK
-        text description
-        varchar thumbnail_url
+        text description_vi
+        text description_en
+        varchar thumbnail_path
         varchar quantity
-        varchar quantity_unit
-        varchar prize_value
-        integer display_order
+        varchar unit_vi
+        varchar unit_en
+        int sort_order
         timestamptz created_at
-        timestamptz updated_at
+    }
+
+    award_prizes {
+        uuid id PK
+        uuid award_category_id FK
+        varchar value
+        varchar note_vi
+        varchar note_en
+        int sort_order
     }

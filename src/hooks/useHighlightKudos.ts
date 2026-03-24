@@ -1,150 +1,32 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import type { HighlightKudo } from "@/types/kudos";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/libs/supabase/client";
+import type { HighlightKudo, KudoUser, KudoMedia } from "@/types/kudos";
 
-const MOCK_HIGHLIGHTS: HighlightKudo[] = [
-	{
-		id: "hl-1",
-		rank: 1,
-		sender: {
-			id: "u1",
-			name: "Huỳnh Dương Xuân Nhật",
-			avatar: "https://picsum.photos/seed/u1/200",
-			department: "STVC",
-			starCount: 120,
-			title: "New Hero",
-		},
-		recipient: {
-			id: "u2",
-			name: "Hà Tiến Cường",
-			avatar: "https://picsum.photos/seed/u2/200",
-			department: "STVC",
-			starCount: 95,
-			title: "Legend Hero",
-		},
-		content:
-			"Cơ trưởng mới nhận @Nguyễn Minh Tuấn @Cao Thành Đạt đã chỉ dẫn e rất tận tâm, nhờ có anh mà e được rất nhiều...",
-		category: "SẾP QUỐC DÂN",
-		hashtags: ["#Hiệu suất cao", "#Giỏi chuyên môn", "#Quản lý xuất sắc"],
-		images: [],
-		heartCount: 37,
-		isLikedByMe: false,
-		createdAt: "2025-11-24T15:53:00Z",
-	},
-	{
-		id: "hl-2",
-		rank: 2,
-		sender: {
-			id: "u3",
-			name: "Phạm Văn Toàn",
-			avatar: "https://picsum.photos/seed/u3/200",
-			department: "STVC",
-			starCount: 80,
-			title: "Rising Hero",
-		},
-		recipient: {
-			id: "u4",
-			name: "Trần Đức Thắng",
-			avatar: "https://picsum.photos/seed/u4/200",
-			department: "STVC",
-			starCount: 150,
-			title: "Super Hero",
-		},
-		content:
-			"Gửi anh - một người sếp tận tâm, một người anh mẫu mực. Cảm ơn anh đã luôn đồng hành và dẫn dắt team vượt qua mọi thử thách.",
-		category: "SẾP QUỐC DÂN",
-		hashtags: ["#Hiệu suất cao", "#Giỏi chuyên môn", "#Quản lý xuất sắc"],
-		images: [],
-		heartCount: 46,
-		isLikedByMe: false,
-		createdAt: "2025-11-24T15:49:00Z",
-	},
-	{
-		id: "hl-3",
-		rank: 3,
-		sender: {
-			id: "u5",
-			name: "Hà Tiến Cường",
-			avatar: "https://picsum.photos/seed/u5/200",
-			department: "STVC",
-			starCount: 60,
-			title: "Legend Hero",
-		},
-		recipient: {
-			id: "u6",
-			name: "Nguyễn Minh Tuấn",
-			avatar: "https://picsum.photos/seed/u6/200",
-			department: "STVC",
-			starCount: 200,
-			title: "Super Hero",
-		},
-		content:
-			"Cơ trưởng mới nhận @Nguyễn Minh Tuấn @Cao Thành Đạt đã chỉ dẫn e rất tận tâm, nhờ có anh mà được rất nhiều kiến thức...",
-		category: "SẾP QUỐC DÂN",
-		hashtags: ["#Hiệu suất cao", "#Giỏi chuyên môn"],
-		images: [],
-		heartCount: 42,
-		isLikedByMe: true,
-		createdAt: "2025-11-24T15:45:00Z",
-	},
-	{
-		id: "hl-4",
-		rank: 4,
-		sender: {
-			id: "u7",
-			name: "Lê Văn Hoàng",
-			avatar: "https://picsum.photos/seed/u7/200",
-			department: "STVC",
-			starCount: 45,
-			title: "New Hero",
-		},
-		recipient: {
-			id: "u8",
-			name: "Trần Thị Mai",
-			avatar: "https://picsum.photos/seed/u8/200",
-			department: "STVC",
-			starCount: 110,
-			title: "Rising Hero",
-		},
-		content:
-			"Cảm ơn chị đã luôn hỗ trợ team trong mọi giai đoạn khó khăn. Tinh thần làm việc của chị là nguồn cảm hứng lớn cho cả đội.",
-		category: "IDOL GIỚI TRẺ",
-		hashtags: ["#Dedicated", "#Inspiring", "#TeamPlayer"],
-		images: [],
-		heartCount: 38,
-		isLikedByMe: false,
-		createdAt: "2025-11-23T10:30:00Z",
-	},
-	{
-		id: "hl-5",
-		rank: 5,
-		sender: {
-			id: "u9",
-			name: "Nguyễn Quốc Bảo",
-			avatar: "https://picsum.photos/seed/u9/200",
-			department: "STVC",
-			starCount: 75,
-			title: "Rising Hero",
-		},
-		recipient: {
-			id: "u10",
-			name: "Phạm Minh Đức",
-			avatar: "https://picsum.photos/seed/u10/200",
-			department: "STVC",
-			starCount: 130,
-			title: "Legend Hero",
-		},
-		content:
-			"Anh luôn có những ý tưởng sáng tạo và biết cách truyền cảm hứng cho team. Sản phẩm của chúng ta ngày càng tốt hơn nhờ có anh!",
-		category: "MENTOR CỦA NĂM",
-		hashtags: ["#Inspiring", "#Creative", "#Leadership"],
-		images: [],
-		heartCount: 55,
-		isLikedByMe: true,
-		createdAt: "2025-11-22T14:00:00Z",
-	},
-];
+interface RpcHighlightRow {
+	id: string;
+	sender_id: string;
+	recipient_id: string;
+	content: string;
+	category_name: string;
+	heart_count: number;
+	hashtag_names: string[] | null;
+	created_at: string;
+}
+
+function mapProfileToKudoUser(profile: Record<string, unknown>): KudoUser {
+	const dept = profile.department as Record<string, string> | null;
+	const heroTitle = profile.hero_title as Record<string, string> | null;
+	return {
+		id: profile.id as string,
+		name: (profile.full_name as string) || (profile.name as string) || "",
+		avatar: (profile.avatar_url as string) || "",
+		department: dept?.name || "",
+		starCount: (profile.star_count as number) || 0,
+		title: heroTitle?.name || "",
+	};
+}
 
 interface UseHighlightKudosReturn {
 	highlights: HighlightKudo[];
@@ -154,13 +36,143 @@ interface UseHighlightKudosReturn {
 }
 
 export function useHighlightKudos(): UseHighlightKudosReturn {
-	const [highlights] = useState<HighlightKudo[]>(MOCK_HIGHLIGHTS);
-	const [isLoading] = useState(false);
-	const [error] = useState<string | null>(null);
+	const [highlights, setHighlights] = useState<HighlightKudo[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-	const refetch = useCallback(() => {
-		// Will be implemented when API is ready
+	const fetchHighlights = useCallback(async () => {
+		setIsLoading(true);
+		setError(null);
+		try {
+			const supabase = createClient();
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+
+			let rpcRows: RpcHighlightRow[] = [];
+			const { data: rows, error: rpcError } = await supabase.rpc(
+				"get_highlight_kudos",
+				{
+					p_hashtag: null,
+					p_department_id: null,
+				},
+			);
+
+			if (rpcError) {
+				console.warn("RPC get_highlight_kudos failed, using direct query:", rpcError.message);
+				// Fallback: direct query — get kudos ordered by like count
+				const { data: directRows } = await supabase
+					.from("kudos")
+					.select("id, sender_id, recipient_id, content, category:categories(name), created_at")
+					.is("deleted_at", null)
+					.order("created_at", { ascending: false })
+					.limit(5);
+				rpcRows = (directRows || []).map((r: Record<string, unknown>) => ({
+					id: r.id as string,
+					sender_id: r.sender_id as string,
+					recipient_id: r.recipient_id as string,
+					content: r.content as string,
+					category_name: (r.category as Record<string, string>)?.name || "",
+					heart_count: 0,
+					hashtag_names: null,
+					created_at: r.created_at as string,
+				}));
+			} else {
+				rpcRows = (rows || []) as unknown as RpcHighlightRow[];
+			}
+
+			if (rpcRows.length === 0) {
+				setHighlights([]);
+				return;
+			}
+
+			const userIds = [
+				...new Set(rpcRows.flatMap((r) => [r.sender_id, r.recipient_id])),
+			];
+			const kudoIds = rpcRows.map((r) => r.id);
+
+			const [profilesRes, mediaRes, likesRes] = await Promise.all([
+				supabase
+					.from("profiles")
+					.select(
+						"*, department:departments(name), hero_title:hero_titles(name,color)",
+					)
+					.in("id", userIds),
+				supabase.from("kudo_media").select("*").in("kudo_id", kudoIds),
+				user
+					? supabase
+							.from("kudo_likes")
+							.select("kudo_id")
+							.eq("user_id", user.id)
+							.in("kudo_id", kudoIds)
+					: Promise.resolve({ data: [] as { kudo_id: string }[] }),
+			]);
+
+			const profileMap = new Map<string, KudoUser>();
+			for (const p of profilesRes.data || []) {
+				profileMap.set(p.id, mapProfileToKudoUser(p));
+			}
+
+			const mediaMap = new Map<string, KudoMedia[]>();
+			for (const m of (mediaRes.data || []) as Record<string, unknown>[]) {
+				const kudoId = m.kudo_id as string;
+				if (!mediaMap.has(kudoId)) mediaMap.set(kudoId, []);
+				mediaMap.get(kudoId)!.push({
+					id: m.id as string,
+					url: m.url as string,
+					type: (m.media_type as "image" | "video") || "image",
+					thumbnailUrl: (m.thumbnail_url as string) || undefined,
+				});
+			}
+
+			const likedKudoIds = new Set(
+				(
+					(likesRes as { data: { kudo_id: string }[] | null }).data || []
+				).map((l) => l.kudo_id),
+			);
+
+			const emptyUser: KudoUser = {
+				id: "",
+				name: "",
+				avatar: "",
+				department: "",
+				starCount: 0,
+				title: "",
+			};
+
+			const mapped: HighlightKudo[] = rpcRows.map((row, index) => ({
+				id: row.id,
+				rank: index + 1,
+				sender: profileMap.get(row.sender_id) || {
+					...emptyUser,
+					id: row.sender_id,
+				},
+				recipient: profileMap.get(row.recipient_id) || {
+					...emptyUser,
+					id: row.recipient_id,
+				},
+				content: row.content,
+				category: row.category_name || "",
+				hashtags: row.hashtag_names || [],
+				images: mediaMap.get(row.id) || [],
+				heartCount: row.heart_count || 0,
+				isLikedByMe: likedKudoIds.has(row.id),
+				createdAt: row.created_at,
+			}));
+
+			setHighlights(mapped);
+		} catch (err) {
+			setError(
+				err instanceof Error ? err.message : "Failed to load highlights",
+			);
+		} finally {
+			setIsLoading(false);
+		}
 	}, []);
 
-	return { highlights, isLoading, error, refetch };
+	useEffect(() => {
+		fetchHighlights();
+	}, [fetchHighlights]);
+
+	return { highlights, isLoading, error, refetch: fetchHighlights };
 }

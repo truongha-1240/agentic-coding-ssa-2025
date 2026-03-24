@@ -2,15 +2,13 @@ import Image from "next/image";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { HeaderNav } from "@/components/HeaderNav";
 import { NotificationBellIcon } from "@/components/icons/NotificationBellIcon";
-import type { NavLink } from "@/types/homepage";
 
 interface HeaderProps {
 	children?: React.ReactNode;
-	navLinks?: NavLink[];
 	showNotification?: boolean;
 }
 
-export function Header({ children, navLinks, showNotification }: HeaderProps) {
+export function Header({ children, showNotification }: HeaderProps) {
 	return (
 		<header className="fixed top-0 left-0 right-0 z-10 flex justify-between items-center h-auto lg:h-20 px-6 md:px-12 lg:px-36 py-3 bg-[#0B0F12]/80">
 			<div className="flex items-center gap-6">
@@ -21,7 +19,7 @@ export function Header({ children, navLinks, showNotification }: HeaderProps) {
 					height={48}
 					className="w-10 lg:w-[52px] h-auto"
 				/>
-				{navLinks && <HeaderNav links={navLinks} />}
+				<HeaderNav />
 			</div>
 			<div className="flex items-center gap-2">
 				{showNotification && (

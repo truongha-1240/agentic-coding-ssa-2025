@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@font-face {
+	font-family: "Digital Numbers";
+	src: url("https://cdn.jsdelivr.net/gh/nicholasgasior/gfonts@master/dist/Digital%20Numbers/DigitalNumbers-Regular.woff2")
+		format("woff2");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
 :root {
 	--color-bg-primary: #00101A;
 	--color-header-bg: rgba(11, 15, 18, 0.8);

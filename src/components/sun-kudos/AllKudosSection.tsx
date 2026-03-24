@@ -6,9 +6,10 @@ import { KudosFeed } from "@/components/sun-kudos/KudosFeed";
 import { useKudosFeed } from "@/hooks/useKudosFeed";
 import { useLikeKudo } from "@/hooks/useLikeKudo";
 import { StatsSidebar } from "@/components/sun-kudos/StatsSidebar";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 
 export function AllKudosSection() {
+	const { t } = useTranslation();
 	const { kudos, isLoading, hasMore, loadMore } = useKudosFeed();
 	const { toggleLike } = useLikeKudo();
 	const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export function AllKudosSection() {
 
 	return (
 		<section className="w-full max-w-[1152px] flex flex-col items-center gap-10">
-			<SectionHeader title={SUN_KUDOS_TEXTS.sections.allKudos} />
+			<SectionHeader title={t("sections.allKudos")} />
 			<div className="flex flex-col lg:flex-row gap-8 lg:gap-10 w-full">
 				{/* Left column: Kudos Feed */}
 				<div className="flex-1">

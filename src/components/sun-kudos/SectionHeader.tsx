@@ -1,14 +1,18 @@
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+"use client";
+
+import { useTranslation } from "@/i18n";
 
 interface SectionHeaderProps {
 	title: string;
 }
 
 export function SectionHeader({ title }: SectionHeaderProps) {
+	const { t } = useTranslation();
+
 	return (
 		<div className="flex flex-col items-center gap-3 w-full">
 			<p className="text-xl font-bold text-[var(--color-text-gold)]">
-				{SUN_KUDOS_TEXTS.sections.sectionSubtitle}
+				{t("sections.sectionSubtitle")}
 			</p>
 			<hr
 				role="separator"

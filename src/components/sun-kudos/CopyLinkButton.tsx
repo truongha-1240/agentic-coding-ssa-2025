@@ -3,13 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { CopyLinkIcon } from "@/components/icons/CopyLinkIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 
 interface CopyLinkButtonProps {
 	url: string;
 }
 
 export function CopyLinkButton({ url }: CopyLinkButtonProps) {
+	const { t } = useTranslation();
 	const [showToast, setShowToast] = useState(false);
 	const [mounted, setMounted] = useState(false);
 
@@ -32,12 +33,12 @@ export function CopyLinkButton({ url }: CopyLinkButtonProps) {
 		<>
 			<button
 				type="button"
-				aria-label={SUN_KUDOS_TEXTS.aria.copyLink}
+				aria-label={t("aria.copyLink")}
 				onClick={handleCopy}
 				className="flex items-center gap-1 text-white font-bold cursor-pointer hover:opacity-80 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2 transition-opacity duration-150"
 			>
 				<CopyLinkIcon className="w-5 h-5" />
-				<span className="text-sm">Sao chép link</span>
+				<span className="text-sm">{t("actions.copyLink")}</span>
 			</button>
 			{showToast &&
 				mounted &&
@@ -48,7 +49,7 @@ export function CopyLinkButton({ url }: CopyLinkButtonProps) {
 						role="status"
 						aria-live="polite"
 					>
-						{SUN_KUDOS_TEXTS.toast.linkCopied}
+						{t("toast.linkCopied")}
 					</div>,
 					document.body,
 				)}

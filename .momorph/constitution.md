@@ -63,6 +63,25 @@ All code MUST follow established patterns for the project stack:
   `@apply` in CSS files. Keep `globals.css` minimal — only for
   Tailwind directives and truly global resets.
 
+### II-B. Internationalization (i18n) — MANDATORY
+
+All user-facing text MUST support Vietnamese (VN) and English (EN):
+
+- **NEVER hardcode user-facing strings** directly in JSX. All text
+  MUST come from translation files.
+- **Translation files**: Store in `src/i18n/` directory:
+  - `src/i18n/vi.ts` — Vietnamese translations (default)
+  - `src/i18n/en.ts` — English translations
+  - `src/i18n/index.ts` — `useTranslation()` hook and `TranslationProvider`
+- **Hook pattern**: Use `const { t } = useTranslation()` in
+  components. Access keys via `t("section.key")`.
+- **Language storage**: `localStorage` key `"lang"`, default `"VN"`.
+  The `LanguageSelector` component in Header controls switching.
+- **New features**: Every new feature specification MUST include
+  translation keys for all user-facing text in both VN and EN.
+- **Existing features**: Migrate to i18n incrementally — new code
+  MUST use translations, existing code should be migrated when touched.
+
 ### III. Responsive Design
 
 The application MUST render correctly across all target viewports:
@@ -79,6 +98,17 @@ The application MUST render correctly across all target viewports:
   content containers.
 - Images MUST use responsive sizing (`next/image` with appropriate
   `sizes` attribute).
+
+### III-B. Database Schema — MANDATORY
+
+Every new feature that introduces data persistence MUST include:
+
+- **Schema update**: Add tables/columns to `.momorph/contexts/database-schema.sql`
+- **Seed data**: Add seed inserts to `.momorph/contexts/database-seed.sql`
+- **ERD update**: Update `.momorph/contexts/DATABASE_DESIGN.mmd`
+- **Analysis update**: Update `.momorph/contexts/DATABASE_ANALYSIS.md`
+- **Supabase conventions**: Use `uuid` for PKs (Supabase default),
+  `auth.users` for auth, RLS policies on all tables.
 
 ### IV. Security-First (OWASP Compliance)
 

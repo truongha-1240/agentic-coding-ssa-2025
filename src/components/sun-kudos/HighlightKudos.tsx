@@ -6,7 +6,7 @@ import { FilterDropdown } from "@/components/sun-kudos/FilterDropdown";
 import { HighlightKudoCard } from "@/components/sun-kudos/HighlightKudoCard";
 import { CarouselControls } from "@/components/sun-kudos/CarouselControls";
 import { ChevronRightIcon } from "@/components/icons/ChevronRightIcon";
-import { SUN_KUDOS_TEXTS } from "@/utils/sun-kudos-data";
+import { useTranslation } from "@/i18n";
 import { useHighlightKudos } from "@/hooks/useHighlightKudos";
 import type { Hashtag, Department } from "@/types/kudos";
 
@@ -27,6 +27,7 @@ const MOCK_DEPARTMENTS: Department[] = [
 ];
 
 export function HighlightKudos() {
+	const { t } = useTranslation();
 	const { highlights } = useHighlightKudos();
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
@@ -70,22 +71,22 @@ export function HighlightKudos() {
 		<section
 			className="w-full max-w-[1152px] flex flex-col items-center gap-8"
 			role="region"
-			aria-label={SUN_KUDOS_TEXTS.aria.highlightCarousel}
+			aria-label={t("aria.highlightCarousel")}
 			onKeyDown={handleKeyDown}
 			tabIndex={0}
 		>
-			<SectionHeader title={SUN_KUDOS_TEXTS.sections.highlightKudos} />
+			<SectionHeader title={t("sections.highlightKudos")} />
 
 			{/* Filter row */}
 			<div className="flex items-center gap-4 self-end">
 				<FilterDropdown
-					label={SUN_KUDOS_TEXTS.highlight.filterHashtag}
+					label={t("highlight.filterHashtag")}
 					items={MOCK_HASHTAGS}
 					selectedId={selectedHashtag}
 					onSelect={setSelectedHashtag}
 				/>
 				<FilterDropdown
-					label={SUN_KUDOS_TEXTS.highlight.filterDepartment}
+					label={t("highlight.filterDepartment")}
 					items={MOCK_DEPARTMENTS}
 					selectedId={selectedDepartment}
 					onSelect={setSelectedDepartment}
@@ -98,7 +99,7 @@ export function HighlightKudos() {
 					{/* Desktop prev button */}
 					<button
 						type="button"
-						aria-label={SUN_KUDOS_TEXTS.aria.carouselPrev}
+						aria-label={t("aria.carouselPrev")}
 						onClick={goToPrev}
 						disabled={currentSlide === 0}
 						className={`hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-14 w-12 h-12 rounded-full border border-[var(--color-border-gold)] items-center justify-center text-[var(--color-text-gold)] z-20 transition-opacity duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2 ${
@@ -120,8 +121,8 @@ export function HighlightKudos() {
 								<div
 									key={kudo.id}
 									role="group"
-									aria-roledescription={SUN_KUDOS_TEXTS.aria.slide}
-									aria-label={`${SUN_KUDOS_TEXTS.aria.slide} ${index + 1} / ${totalPages}`}
+									aria-roledescription={t("aria.slide")}
+									aria-label={`${t("aria.slide")} ${index + 1} / ${totalPages}`}
 									className="w-full flex-shrink-0 px-2"
 								>
 									<HighlightKudoCard kudo={kudo} onLike={handleLike} />
@@ -147,8 +148,8 @@ export function HighlightKudos() {
 									<div
 										key={kudo.id}
 										role="group"
-										aria-roledescription={SUN_KUDOS_TEXTS.aria.slide}
-										aria-label={`${SUN_KUDOS_TEXTS.aria.slide} ${index + 1} / ${totalPages}`}
+										aria-roledescription={t("aria.slide")}
+										aria-label={`${t("aria.slide")} ${index + 1} / ${totalPages}`}
 										className="w-1/2 flex-shrink-0 px-4 transition-all duration-300 ease-in-out"
 										style={{
 											transform: isCurrent
@@ -170,7 +171,7 @@ export function HighlightKudos() {
 					{/* Desktop next button */}
 					<button
 						type="button"
-						aria-label={SUN_KUDOS_TEXTS.aria.carouselNext}
+						aria-label={t("aria.carouselNext")}
 						onClick={goToNext}
 						disabled={currentSlide === totalPages - 1}
 						className={`hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-14 w-12 h-12 rounded-full border border-[var(--color-border-gold)] items-center justify-center text-[var(--color-text-gold)] z-20 transition-opacity duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2 ${

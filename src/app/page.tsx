@@ -8,14 +8,13 @@ import { AwardsGrid } from "@/components/homepage/AwardsGrid";
 import { KudosPromotion } from "@/components/homepage/KudosPromotion";
 import { WidgetButton } from "@/components/homepage/WidgetButton";
 import {
-	HEADER_NAV_LINKS,
 	FOOTER_NAV_LINKS,
 } from "@/utils/homepage-data";
 
 export default function Home() {
 	return (
 		<>
-			<Header navLinks={HEADER_NAV_LINKS} showNotification>
+			<Header showNotification>
 				<ProfileDropdown />
 			</Header>
 			<main className="relative bg-[var(--color-bg-primary)]">

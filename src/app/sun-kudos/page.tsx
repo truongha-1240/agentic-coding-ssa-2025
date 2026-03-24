@@ -3,7 +3,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import {
-	HEADER_NAV_LINKS,
 	FOOTER_NAV_LINKS,
 } from "@/utils/homepage-data";
 import { KVBanner } from "@/components/sun-kudos/KVBanner";
@@ -14,7 +13,7 @@ import { SpotlightBoard } from "@/components/sun-kudos/SpotlightBoard";
 export default function SunKudosPage() {
 	return (
 		<>
-			<Header navLinks={HEADER_NAV_LINKS} showNotification>
+			<Header showNotification>
 				<ProfileDropdown />
 			</Header>
 			<main className="relative bg-[var(--color-bg-primary)]">

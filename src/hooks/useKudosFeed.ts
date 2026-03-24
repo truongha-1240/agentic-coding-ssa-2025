@@ -1,101 +1,201 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import type { Kudo, KudoUser } from "@/types/kudos";
+import { useState, useEffect, useCallback } from "react";
+import { createClient } from "@/libs/supabase/client";
+import type { Kudo, KudoUser, KudoMedia } from "@/types/kudos";
 
-function createMockUser(id: string, name: string, department: string): KudoUser {
+const PAGE_SIZE = 10;
+
+interface RpcFeedRow {
+	id: string;
+	sender_id: string;
+	recipient_id: string;
+	content: string;
+	category_name: string;
+	heart_count: number;
+	hashtag_names: string[] | null;
+	created_at: string;
+}
+
+function mapProfileToKudoUser(profile: Record<string, unknown>): KudoUser {
+	const dept = profile.department as Record<string, string> | null;
+	const heroTitle = profile.hero_title as Record<string, string> | null;
 	return {
-		id,
-		name,
-		avatar: `https://picsum.photos/seed/user${id}/200`,
-		department,
-		starCount: Math.floor(Math.random() * 50) + 10,
-		title: "Member",
+		id: profile.id as string,
+		name: (profile.full_name as string) || (profile.name as string) || "",
+		avatar: (profile.avatar_url as string) || "",
+		department: dept?.name || "",
+		starCount: (profile.star_count as number) || 0,
+		title: heroTitle?.name || "",
 	};
 }
 
-const mockSenders: KudoUser[] = [
-	createMockUser("s1", "Huỳnh Dương Xuân Nhật", "D4"),
-	createMockUser("s2", "Nguyễn Thị Minh Anh", "D1"),
-	createMockUser("s3", "Trần Văn Hoàng", "D2"),
-	createMockUser("s4", "Lê Thị Hồng Nhung", "D5"),
-	createMockUser("s5", "Phạm Quốc Bảo", "D3"),
-];
+async function fetchProfilesAndMedia(
+	supabase: ReturnType<typeof createClient>,
+	rows: RpcFeedRow[],
+	currentUserId: string | undefined,
+): Promise<Kudo[]> {
+	if (rows.length === 0) return [];
 
-const mockRecipients: KudoUser[] = [
-	createMockUser("r1", "Võ Thanh Tùng", "D2"),
-	createMockUser("r2", "Đặng Thị Mai Linh", "D4"),
-	createMockUser("r3", "Bùi Minh Đức", "D1"),
-	createMockUser("r4", "Hoàng Thị Lan Anh", "D3"),
-	createMockUser("r5", "Ngô Quang Huy", "D5"),
-];
+	const userIds = [
+		...new Set(rows.flatMap((r) => [r.sender_id, r.recipient_id])),
+	];
+	const kudoIds = rows.map((r) => r.id);
 
-const mockContents = [
-	"Cảm ơn bạn đã luôn hỗ trợ mình trong dự án vừa qua. Tinh thần làm việc nhóm của bạn thật sự rất tuyệt vời! Mình rất trân trọng sự giúp đỡ của bạn.",
-	"Bạn là nguồn cảm hứng lớn cho cả team. Sự tận tâm và nhiệt huyết của bạn khiến mọi người xung quanh đều muốn cố gắng hơn mỗi ngày.",
-	"Cảm ơn bạn đã chia sẻ kiến thức và kinh nghiệm quý báu. Nhờ có bạn mà mình đã học được rất nhiều điều mới trong thời gian qua.",
-	"Bạn luôn sẵn sàng giúp đỡ mọi người, dù công việc có bận rộn đến đâu. Mình thật sự rất biết ơn vì có đồng nghiệp tuyệt vời như bạn!",
-	"Dự án thành công không thể thiếu sự đóng góp của bạn. Cảm ơn bạn đã luôn nỗ lực hết mình và mang lại kết quả xuất sắc.",
-];
+	const [profilesRes, mediaRes, likesRes] = await Promise.all([
+		supabase
+			.from("profiles")
+			.select("*, department:departments(name), hero_title:hero_titles(name,color)")
+			.in("id", userIds),
+		supabase.from("kudo_media").select("*").in("kudo_id", kudoIds),
+		currentUserId
+			? supabase
+					.from("kudo_likes")
+					.select("kudo_id")
+					.eq("user_id", currentUserId)
+					.in("kudo_id", kudoIds)
+			: Promise.resolve({ data: [] as { kudo_id: string }[] }),
+	]);
 
-function generateMockKudo(index: number): Kudo {
-	return {
-		id: `kudo-${index}`,
-		sender: mockSenders[index % mockSenders.length],
-		recipient: mockRecipients[index % mockRecipients.length],
-		content: mockContents[index % mockContents.length],
-		category: "IDOL GIỚI TRẺ",
-		hashtags: ["Dedicated", "Inspiring", "Dedicated", "Inspiring", "Dedicated"],
-		images:
-			index % 3 === 0
-				? [
-						{
-							id: `media-${index}-1`,
-							url: `https://picsum.photos/seed/kudo${index}/400/300`,
-							type: "video",
-							thumbnailUrl: `https://picsum.photos/seed/kudo${index}/200/200`,
-						},
-						{
-							id: `media-${index}-2`,
-							url: `https://picsum.photos/seed/kudo${index}b/400/300`,
-							type: "image",
-						},
-					]
-				: [],
-		heartCount: 1000,
-		isLikedByMe: index % 2 === 0,
-		createdAt: new Date(2025, 9, 30, 16, 0, 0).toISOString(),
-	};
+	const profileMap = new Map<string, KudoUser>();
+	for (const p of profilesRes.data || []) {
+		profileMap.set(p.id, mapProfileToKudoUser(p));
+	}
+
+	const mediaMap = new Map<string, KudoMedia[]>();
+	for (const m of (mediaRes.data || []) as Record<string, unknown>[]) {
+		const kudoId = m.kudo_id as string;
+		if (!mediaMap.has(kudoId)) mediaMap.set(kudoId, []);
+		mediaMap.get(kudoId)!.push({
+			id: m.id as string,
+			url: m.url as string,
+			type: (m.media_type as "image" | "video") || "image",
+			thumbnailUrl: (m.thumbnail_url as string) || undefined,
+		});
+	}
+
+	const likedKudoIds = new Set(
+		((likesRes as { data: { kudo_id: string }[] | null }).data || []).map(
+			(l) => l.kudo_id,
+		),
+	);
+
+	return rows.map((row) => ({
+		id: row.id,
+		sender: profileMap.get(row.sender_id) || {
+			id: row.sender_id,
+			name: "",
+			avatar: "",
+			department: "",
+			starCount: 0,
+			title: "",
+		},
+		recipient: profileMap.get(row.recipient_id) || {
+			id: row.recipient_id,
+			name: "",
+			avatar: "",
+			department: "",
+			starCount: 0,
+			title: "",
+		},
+		content: row.content,
+		category: row.category_name || "",
+		hashtags: row.hashtag_names || [],
+		images: mediaMap.get(row.id) || [],
+		heartCount: row.heart_count || 0,
+		isLikedByMe: likedKudoIds.has(row.id),
+		createdAt: row.created_at,
+	}));
 }
-
-const PAGE_SIZE = 5;
-const MAX_ITEMS = 15;
 
 export function useKudosFeed() {
-	const [kudos, setKudos] = useState<Kudo[]>(() =>
-		Array.from({ length: PAGE_SIZE }, (_, i) => generateMockKudo(i)),
-	);
-	const [isLoading, setIsLoading] = useState(false);
-	const [error] = useState<string | null>(null);
+	const [kudos, setKudos] = useState<Kudo[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
+	const [cursor, setCursor] = useState<string | null>(null);
+	const [hasMore, setHasMore] = useState(true);
 
-	const hasMore = kudos.length < MAX_ITEMS;
+	const fetchFeed = useCallback(
+		async (currentCursor: string | null, append: boolean) => {
+			setIsLoading(true);
+			setError(null);
+			try {
+				const supabase = createClient();
+				const {
+					data: { user },
+				} = await supabase.auth.getUser();
+
+				// Try RPC first, fallback to direct query
+			let rpcRows: RpcFeedRow[] = [];
+			const { data: rows, error: rpcError } = await supabase.rpc(
+					"get_kudos_feed",
+					{
+						p_cursor: currentCursor,
+						p_limit: PAGE_SIZE,
+						p_hashtag: null,
+						p_department_id: null,
+					},
+				);
+
+				if (rpcError) {
+				console.warn("RPC get_kudos_feed failed, using direct query:", rpcError.message);
+				// Fallback: direct query
+				let query = supabase
+					.from("kudos")
+					.select("id, sender_id, recipient_id, content, category:categories(name), created_at")
+					.is("deleted_at", null)
+					.order("created_at", { ascending: false })
+					.limit(PAGE_SIZE);
+				if (currentCursor) {
+					query = query.lt("created_at", currentCursor);
+				}
+				const { data: directRows, error: directError } = await query;
+				if (directError) throw directError;
+				rpcRows = (directRows || []).map((r: Record<string, unknown>) => ({
+					id: r.id as string,
+					sender_id: r.sender_id as string,
+					recipient_id: r.recipient_id as string,
+					content: r.content as string,
+					category_name: (r.category as Record<string, string>)?.name || "",
+					heart_count: 0,
+					hashtag_names: null,
+					created_at: r.created_at as string,
+				}));
+			} else {
+				rpcRows = (rows || []) as unknown as RpcFeedRow[];
+			}
+				const newKudos = await fetchProfilesAndMedia(
+					supabase,
+					rpcRows,
+					user?.id,
+				);
+
+				if (rpcRows.length < PAGE_SIZE) {
+					setHasMore(false);
+				}
+
+				if (rpcRows.length > 0) {
+					setCursor(rpcRows[rpcRows.length - 1].created_at);
+				}
+
+				setKudos((prev) => (append ? [...prev, ...newKudos] : newKudos));
+			} catch (err) {
+				setError(err instanceof Error ? err.message : "Failed to load feed");
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[],
+	);
+
+	useEffect(() => {
+		fetchFeed(null, false);
+	}, [fetchFeed]);
 
 	const loadMore = useCallback(() => {
 		if (isLoading || !hasMore) return;
-
-		setIsLoading(true);
-		// Simulate async loading
-		setTimeout(() => {
-			setKudos((prev) => {
-				const startIndex = prev.length;
-				const newItems = Array.from({ length: PAGE_SIZE }, (_, i) =>
-					generateMockKudo(startIndex + i),
-				);
-				return [...prev, ...newItems];
-			});
-			setIsLoading(false);
-		}, 500);
-	}, [isLoading, hasMore]);
+		fetchFeed(cursor, true);
+	}, [isLoading, hasMore, cursor, fetchFeed]);
 
 	return { kudos, isLoading, hasMore, loadMore, error };
 }
