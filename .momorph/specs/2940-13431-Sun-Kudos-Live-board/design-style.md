@@ -525,9 +525,16 @@ The page uses the same background-layering pattern as Homepage and Awards Inform
 |----------|-------|-----|
 | **Node ID** | 3127:21871 | - |
 | width | 100% | `width: 100%` |
-| background | transparent | `background: transparent` |
-| border-bottom | 1px solid #2E3940 | `border-bottom: 1px solid var(--color-divider)` |
-| padding | 24px 0 | `padding: 24px 0` |
+| background | rgba(0,16,26,0.9) (dark) | `background: rgba(0,16,26,0.9)` |
+| border | 1px solid #2E3940 | `border: 1px solid #2E3940` |
+| border-radius | 16px | `border-radius: 16px` |
+| padding | 24px | `padding: 24px` |
+| gap | 16px between sections | `gap: 16px` |
+| sender/recipient | 60px avatars, centered with PlayIcon between, names below | vertical card layout |
+| title | centered, bold, uppercase, white | separate row |
+| content-box | bg #FFF8E1 (cream), rounded-xl, p-4, dark text | content in cream box |
+| hashtags | gold text on dark bg | `color: var(--color-text-gold)` |
+| actions | border-top white/10, heart + copy link | white text on dark |
 
 **Subcomponents:**
 

@@ -297,7 +297,7 @@ No new dependencies required. All functionality achievable with:
 
 2. **Create `HighlightKudoCard.tsx`** — Card showing:
    - Sender/receiver `<UserInfo size="small" />` (32px avatar), arrow icon between them
-   - Timestamp (14px, white 50% opacity) + category label (14px Bold gold, e.g., "IDOL GIỚI TRẺ")
+   - Timestamp (14px, white 50% opacity) + title label (14px Bold gold, e.g., "IDOL GIỚI TRẺ")
    - Content (16px Regular white, max 3 lines via `line-clamp-3`)
    - Hashtags, `<HeartButton />`, `<CopyLinkButton />`
    - "Xem chi tiết" link with `<ArrowUpRightIcon />` (hover: gold)
@@ -343,7 +343,7 @@ No new dependencies required. All functionality achievable with:
 
 2. **Create `KudoPostCard.tsx`** — Feed card:
    - Sender/receiver `<UserInfo />` (48px avatar) with `<ArrowRightIcon />` between
-   - Timestamp (formatted `HH:mm - MM/DD/YYYY`) + category label (bold gold)
+   - Timestamp (formatted `HH:mm - MM/DD/YYYY`) + title label (bold gold)
    - Content with 5-line truncation (CSS `line-clamp-5`)
    - `<ImageGallery />` (hidden when no images)
    - `<HashtagList />` (hidden when no hashtags), `onHashtagClick` prop

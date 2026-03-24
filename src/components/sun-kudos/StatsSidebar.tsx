@@ -10,7 +10,7 @@ import { GiftRecipientsList } from "@/components/sun-kudos/GiftRecipientsList";
 export function StatsSidebar() {
 	const { t } = useTranslation();
 	const { stats } = useUserStats();
-	const { recipients, hasMore, loadMore } = useGiftRecipients();
+	const { recipients } = useGiftRecipients();
 
 	const handleOpenSecretBox = useCallback(() => {
 		// Will be implemented when API is ready
@@ -23,11 +23,7 @@ export function StatsSidebar() {
 			aria-label={t("aria.statsSidebar")}
 		>
 			<StatsOverview stats={stats} onOpenSecretBox={handleOpenSecretBox} />
-			<GiftRecipientsList
-				recipients={recipients}
-				hasMore={hasMore}
-				onLoadMore={loadMore}
-			/>
+			<GiftRecipientsList recipients={recipients} />
 		</aside>
 	);
 }

@@ -264,7 +264,7 @@ A Sunner searches for another Sunner's profile using the search bar in the hero 
 
 ### Key Entities
 
-- **Kudo**: Core entity — sender, recipient, content, category label (e.g., "IDOL GIỚI TRẺ"), hashtags, images, hearts, timestamp.
+- **Kudo**: Core entity — sender, recipient, content, title (free text, e.g., "IDOL GIỚI TRẺ"), is_anonymous, hashtags, images, hearts, timestamp.
 - **User (Sunner)**: Name, avatar (from Gmail), department, star count, title.
 - **Hashtag**: Tag label linked to Kudos.
 - **SecretBox**: Gamification entity — opened/unopened status per user.

@@ -20,7 +20,8 @@
       "Read(//home/hoang.anh.truong@sun-asterisk.com/.nvm/versions/node/**)",
       "Bash(fnm list:*)",
       "Bash(volta list:*)",
-      "Read(//usr/local/bin/**)"
+      "Read(//usr/local/bin/**)",
+      "mcp__momorph__get_frame_test_cases"
     ]
   },
   "enabledMcpjsonServers": [

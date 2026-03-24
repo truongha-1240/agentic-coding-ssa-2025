@@ -9,7 +9,8 @@ interface RpcHighlightRow {
 	sender_id: string;
 	recipient_id: string;
 	content: string;
-	category_name: string;
+	title: string;
+	is_anonymous: boolean;
 	heart_count: number;
 	hashtag_names: string[] | null;
 	created_at: string;
@@ -25,6 +26,8 @@ function mapProfileToKudoUser(profile: Record<string, unknown>): KudoUser {
 		department: dept?.name || "",
 		starCount: (profile.star_count as number) || 0,
 		title: heroTitle?.name || "",
+		heroTitle: heroTitle?.name || undefined,
+		heroTitleColor: heroTitle?.color || undefined,
 	};
 }
 
@@ -35,7 +38,13 @@ interface UseHighlightKudosReturn {
 	refetch: () => void;
 }
 
-export function useHighlightKudos(): UseHighlightKudosReturn {
+interface UseHighlightKudosOptions {
+	hashtag?: string | null;
+	departmentId?: string | null;
+}
+
+export function useHighlightKudos(options: UseHighlightKudosOptions = {}): UseHighlightKudosReturn {
+	const { hashtag = null, departmentId = null } = options;
 	const [highlights, setHighlights] = useState<HighlightKudo[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -53,8 +62,8 @@ export function useHighlightKudos(): UseHighlightKudosReturn {
 			const { data: rows, error: rpcError } = await supabase.rpc(
 				"get_highlight_kudos",
 				{
-					p_hashtag: null,
-					p_department_id: null,
+					p_hashtag: hashtag || null,
+					p_department_id: departmentId || null,
 				},
 			);
 
@@ -63,7 +72,7 @@ export function useHighlightKudos(): UseHighlightKudosReturn {
 				// Fallback: direct query — get kudos ordered by like count
 				const { data: directRows } = await supabase
 					.from("kudos")
-					.select("id, sender_id, recipient_id, content, category:categories(name), created_at")
+					.select("id, sender_id, recipient_id, content, title, is_anonymous, created_at")
 					.is("deleted_at", null)
 					.order("created_at", { ascending: false })
 					.limit(5);
@@ -72,7 +81,8 @@ export function useHighlightKudos(): UseHighlightKudosReturn {
 					sender_id: r.sender_id as string,
 					recipient_id: r.recipient_id as string,
 					content: r.content as string,
-					category_name: (r.category as Record<string, string>)?.name || "",
+					title: (r.title as string) || "",
+					is_anonymous: (r.is_anonymous as boolean) || false,
 					heart_count: 0,
 					hashtag_names: null,
 					created_at: r.created_at as string,
@@ -152,7 +162,8 @@ export function useHighlightKudos(): UseHighlightKudosReturn {
 					id: row.recipient_id,
 				},
 				content: row.content,
-				category: row.category_name || "",
+				title: row.title || "",
+				isAnonymous: row.is_anonymous || false,
 				hashtags: row.hashtag_names || [],
 				images: mediaMap.get(row.id) || [],
 				heartCount: row.heart_count || 0,
@@ -168,7 +179,7 @@ export function useHighlightKudos(): UseHighlightKudosReturn {
 		} finally {
 			setIsLoading(false);
 		}
-	}, []);
+	}, [hashtag, departmentId]);
 
 	useEffect(() => {
 		fetchHighlights();

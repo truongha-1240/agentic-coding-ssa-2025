@@ -1,10 +1,12 @@
 "use client";
 
 import { useCountdown } from "@/hooks/useCountdown";
+import { useEventDate } from "@/hooks/useEventDate";
 import { CountdownTile } from "@/components/homepage/CountdownTile";
 
 export function CountdownTimer() {
-	const { days, hours, minutes, isExpired } = useCountdown();
+	const { eventDate } = useEventDate();
+	const { days, hours, minutes, isExpired } = useCountdown(eventDate);
 
 	return (
 		<div className="flex flex-col gap-4 w-full max-w-[1224px]">

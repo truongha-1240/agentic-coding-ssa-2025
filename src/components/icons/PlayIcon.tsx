@@ -14,7 +14,10 @@ export function PlayIcon({ className = "w-8 h-8" }: PlayIconProps) {
 		>
 			<path
 				d="M12 8L24 16L12 24V8Z"
-				fill="currentColor"
+				stroke="currentColor"
+				strokeWidth="2.5"
+				strokeLinejoin="round"
+				fill="none"
 			/>
 		</svg>
 	);

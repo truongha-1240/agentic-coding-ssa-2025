@@ -4,13 +4,17 @@ import Image from "next/image";
 import { useTranslation } from "@/i18n";
 import { KVBannerActions } from "@/components/sun-kudos/KVBannerActions";
 
-export function KVBanner() {
+interface KVBannerProps {
+	onWriteKudo?: () => void;
+}
+
+export function KVBanner({ onWriteKudo }: KVBannerProps) {
 	const { t } = useTranslation();
 
 	return (
-		<div className="w-full max-w-[1152px] flex flex-col items-center gap-10 text-center">
-			{/* Title + KUDOS Logo */}
-			<div className="flex flex-col items-center gap-4">
+		<div className="w-full max-w-[1152px] flex flex-col items-start gap-10">
+			{/* Title + KUDOS Logo — left aligned */}
+			<div className="flex flex-col items-start gap-4">
 				<h2 className="text-xl md:text-2xl font-bold text-white">
 					{t("kvBanner.subtitle")}
 				</h2>
@@ -29,7 +33,7 @@ export function KVBanner() {
 			</div>
 
 			{/* Input bar + Search bar row (Client Component boundary) */}
-			<KVBannerActions />
+			<KVBannerActions onWriteKudo={onWriteKudo} />
 		</div>
 	);
 }

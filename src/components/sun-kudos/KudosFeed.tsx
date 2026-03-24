@@ -43,7 +43,7 @@ export function KudosFeed({
 	}, [hasMore, isLoading, onLoadMore]);
 
 	return (
-		<div role="feed" aria-label={t("aria.kudosFeed")}>
+		<div role="feed" aria-label={t("aria.kudosFeed")} className="flex flex-col gap-6">
 			{kudos.length === 0 && !isLoading ? (
 				<p className="text-center text-white/50 py-12">
 					{t("feed.emptyState")}

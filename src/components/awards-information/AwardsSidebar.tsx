@@ -19,7 +19,8 @@ export function AwardsSidebar({ categories }: AwardsSidebarProps) {
 		e.preventDefault();
 		const target = document.getElementById(slug);
 		if (target) {
-			target.scrollIntoView({ behavior: "smooth" });
+			const top = target.getBoundingClientRect().top + window.scrollY - 100;
+			window.scrollTo({ top, behavior: "smooth" });
 		}
 	};
 

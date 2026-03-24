@@ -31,7 +31,9 @@ export function HighlightKudos() {
 	const { highlights } = useHighlightKudos();
 	const [currentSlide, setCurrentSlide] = useState(0);
 	const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
-	const [selectedDepartment, setSelectedDepartment] = useState<string | null>(null);
+	const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+		null,
+	);
 
 	const totalPages = highlights.length;
 
@@ -45,12 +47,13 @@ export function HighlightKudos() {
 		}
 	}, [currentSlide, totalPages]);
 
+	// Circular navigation: 1/5 prev → 5/5, 5/5 next → 1/5
 	const goToPrev = useCallback(() => {
-		setCurrentSlide((prev) => Math.max(0, prev - 1));
-	}, []);
+		setCurrentSlide((prev) => (prev === 0 ? totalPages - 1 : prev - 1));
+	}, [totalPages]);
 
 	const goToNext = useCallback(() => {
-		setCurrentSlide((prev) => Math.min(totalPages - 1, prev + 1));
+		setCurrentSlide((prev) => (prev === totalPages - 1 ? 0 : prev + 1));
 	}, [totalPages]);
 
 	const handleLike = useCallback((id: string) => {
@@ -66,6 +69,16 @@ export function HighlightKudos() {
 			goToNext();
 		}
 	}
+
+	// Get indices for 3-card display: prev, current, next (circular)
+	function getVisibleIndices() {
+		if (totalPages <= 1) return { prev: -1, current: 0, next: -1 };
+		const prev = currentSlide === 0 ? totalPages - 1 : currentSlide - 1;
+		const next = currentSlide === totalPages - 1 ? 0 : currentSlide + 1;
+		return { prev, current: currentSlide, next };
+	}
+
+	const { prev: prevIdx, current: currentIdx, next: nextIdx } = getVisibleIndices();
 
 	return (
 		<section
@@ -96,17 +109,12 @@ export function HighlightKudos() {
 			{/* Carousel */}
 			{totalPages > 0 ? (
 				<div className="relative w-full">
-					{/* Desktop prev button */}
+					{/* Desktop prev button - outside carousel */}
 					<button
 						type="button"
 						aria-label={t("aria.carouselPrev")}
 						onClick={goToPrev}
-						disabled={currentSlide === 0}
-						className={`hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-14 w-12 h-12 rounded-full border border-[var(--color-border-gold)] items-center justify-center text-[var(--color-text-gold)] z-20 transition-opacity duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2 ${
-							currentSlide === 0
-								? "opacity-30 cursor-not-allowed"
-								: "cursor-pointer hover:bg-white/10"
-						}`}
+						className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 w-12 h-12 rounded-lg border-2 border-[var(--color-border-gold)] items-center justify-center text-[var(--color-text-gold)] z-20 cursor-pointer hover:bg-[rgba(255,234,158,0.1)] transition-all duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2"
 					>
 						<ChevronRightIcon className="w-6 h-6 rotate-180" />
 					</button>
@@ -114,7 +122,7 @@ export function HighlightKudos() {
 					{/* Mobile: single card carousel */}
 					<div className="lg:hidden overflow-hidden">
 						<div
-							className="flex transition-transform duration-300 ease-in-out"
+							className="flex transition-transform duration-500 ease-in-out"
 							style={{ transform: `translateX(-${currentSlide * 100}%)` }}
 						>
 							{highlights.map((kudo, index) => (
@@ -125,60 +133,97 @@ export function HighlightKudos() {
 									aria-label={`${t("aria.slide")} ${index + 1} / ${totalPages}`}
 									className="w-full flex-shrink-0 px-2"
 								>
-									<HighlightKudoCard kudo={kudo} onLike={handleLike} />
+									<HighlightKudoCard
+										kudo={kudo}
+										onLike={handleLike}
+									/>
 								</div>
 							))}
 						</div>
 					</div>
 
-					{/* Desktop: 1 featured center card with side cards peeking */}
+					{/* Desktop: circular carousel — all cards SAME SIZE, side cards clipped by overflow */}
 					<div className="hidden lg:block overflow-hidden">
 						<div
-							className="flex transition-transform duration-300 ease-in-out"
+							className="flex items-stretch"
 							style={{
-								/* Each card is 50% wide. To center current card, offset by (50% * index) then shift right by 25% */
-								transform: `translateX(calc(-${currentSlide * 50}% + 25%))`,
+								gap: '24px',
+								/*
+								 * 3 cards × 600px + 2 gaps × 24px = 1848px total.
+								 * Container = 1152px max → 696px overflow → 348px per side.
+								 * marginLeft = 50% - (600 + 24 + 300) = 50% - 924px
+								 * This centers the middle card exactly.
+								 */
+								marginLeft: 'calc(50% - 924px)',
 							}}
 						>
-							{highlights.map((kudo, index) => {
-								const isCurrent = index === currentSlide;
-								const isAdjacent =
-									index === currentSlide - 1 || index === currentSlide + 1;
-								return (
-									<div
-										key={kudo.id}
-										role="group"
-										aria-roledescription={t("aria.slide")}
-										aria-label={`${t("aria.slide")} ${index + 1} / ${totalPages}`}
-										className="w-1/2 flex-shrink-0 px-4 transition-all duration-300 ease-in-out"
-										style={{
-											transform: isCurrent
-												? "scale(1)"
-												: isAdjacent
-													? "scale(0.85)"
-													: "scale(0.8)",
-											opacity: isCurrent ? 1 : isAdjacent ? 0.5 : 0.3,
-											zIndex: isCurrent ? 10 : isAdjacent ? 5 : 1,
-										}}
-									>
-										<HighlightKudoCard kudo={kudo} onLike={handleLike} isFeatured={isCurrent} />
-									</div>
-								);
-							})}
+							{/* Prev card — scaled down, faded, blurred with gradient */}
+							<div
+								style={{
+									width: '600px',
+									flexShrink: 0,
+									opacity: 0.7,
+									transform: 'scale(0.9)',
+									filter: 'blur(3px)',
+									transition: 'all 500ms ease-in-out',
+									maskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+									WebkitMaskImage: 'linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+								}}
+								aria-hidden="true"
+							>
+								<HighlightKudoCard
+									kudo={highlights[prevIdx >= 0 ? prevIdx : 0]}
+									onLike={handleLike}
+								/>
+							</div>
+
+							{/* Center card — fully visible */}
+							<div
+								role="group"
+								aria-roledescription={t("aria.slide")}
+								aria-label={`${t("aria.slide")} ${currentIdx + 1} / ${totalPages}`}
+								className="z-10"
+								style={{
+									width: '600px',
+									flexShrink: 0,
+									transition: 'all 500ms ease-in-out',
+								}}
+							>
+								<HighlightKudoCard
+									kudo={highlights[currentIdx]}
+									onLike={handleLike}
+									isFeatured
+								/>
+							</div>
+
+							{/* Next card — scaled down, faded, blurred with gradient */}
+							<div
+								style={{
+									width: '600px',
+									flexShrink: 0,
+									opacity: 0.7,
+									transform: 'scale(0.9)',
+									filter: 'blur(3px)',
+									transition: 'all 500ms ease-in-out',
+									maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+									WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+								}}
+								aria-hidden="true"
+							>
+								<HighlightKudoCard
+									kudo={highlights[nextIdx >= 0 ? nextIdx : 0]}
+									onLike={handleLike}
+								/>
+							</div>
 						</div>
 					</div>
 
-					{/* Desktop next button */}
+					{/* Desktop next button - outside carousel */}
 					<button
 						type="button"
 						aria-label={t("aria.carouselNext")}
 						onClick={goToNext}
-						disabled={currentSlide === totalPages - 1}
-						className={`hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-14 w-12 h-12 rounded-full border border-[var(--color-border-gold)] items-center justify-center text-[var(--color-text-gold)] z-20 transition-opacity duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2 ${
-							currentSlide === totalPages - 1
-								? "opacity-30 cursor-not-allowed"
-								: "cursor-pointer hover:bg-white/10"
-						}`}
+						className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 w-12 h-12 rounded-lg border-2 border-[var(--color-border-gold)] items-center justify-center text-[var(--color-text-gold)] z-20 cursor-pointer hover:bg-[rgba(255,234,158,0.1)] transition-all duration-150 focus:outline-2 focus:outline-[var(--color-text-gold)] focus:outline-offset-2"
 					>
 						<ChevronRightIcon className="w-6 h-6" />
 					</button>

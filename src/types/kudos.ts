@@ -5,6 +5,8 @@ export interface KudoUser {
 	department: string;
 	starCount: number;
 	title: string;
+	heroTitle?: string;
+	heroTitleColor?: string;
 }
 
 export interface Kudo {
@@ -12,7 +14,8 @@ export interface Kudo {
 	sender: KudoUser;
 	recipient: KudoUser;
 	content: string;
-	category: string;
+	title: string;
+	isAnonymous: boolean;
 	hashtags: string[];
 	images: KudoMedia[];
 	heartCount: number;
