@@ -1,11 +1,13 @@
 "use client";
 
 import { useCountdown } from "@/hooks/useCountdown";
-import { useEventDate } from "@/hooks/useEventDate";
 import { CountdownTile } from "@/components/homepage/CountdownTile";
 
-export function CountdownTimer() {
-	const { eventDate } = useEventDate();
+interface CountdownTimerProps {
+	eventDate: Date | null;
+}
+
+export function CountdownTimer({ eventDate }: CountdownTimerProps) {
 	const { days, hours, minutes, isExpired } = useCountdown(eventDate);
 
 	return (

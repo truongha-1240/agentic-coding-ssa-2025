@@ -1,9 +1,14 @@
+"use client";
+
 import Image from "next/image";
+import { useEventDate } from "@/hooks/useEventDate";
 import { CountdownTimer } from "@/components/homepage/CountdownTimer";
 import { EventInfo } from "@/components/homepage/EventInfo";
 import { CTAButton } from "@/components/homepage/CTAButton";
 
 export function HeroBanner() {
+	const { eventDate } = useEventDate();
+
 	return (
 		<div className="flex flex-col items-start gap-10 px-6 lg:px-0 w-full max-w-[1224px] min-h-[calc(100svh-120px)] lg:min-h-[calc(100svh-176px)]">
 			{/* ROOT FURTHER title */}
@@ -17,8 +22,8 @@ export function HeroBanner() {
 
 			{/* Countdown + Event Info sub-container (gap: 16px) */}
 			<div className="flex flex-col gap-4 w-full">
-				<CountdownTimer />
-				<EventInfo />
+				<CountdownTimer eventDate={eventDate} />
+				<EventInfo eventDate={eventDate} />
 			</div>
 
 			{/* CTA Buttons */}

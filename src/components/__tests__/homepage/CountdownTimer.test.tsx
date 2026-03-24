@@ -6,6 +6,8 @@ vi.mock("@/hooks/useCountdown", () => ({
 }));
 
 describe("CountdownTimer", () => {
+	const futureDate = new Date("2099-01-01T00:00:00Z");
+
 	it("renders 'Comming soon' label and 3 countdown tiles when not expired", async () => {
 		const { useCountdown } = await import("@/hooks/useCountdown");
 		vi.mocked(useCountdown).mockReturnValue({
@@ -18,7 +20,7 @@ describe("CountdownTimer", () => {
 		const { CountdownTimer } = await import(
 			"@/components/homepage/CountdownTimer"
 		);
-		render(<CountdownTimer />);
+		render(<CountdownTimer eventDate={futureDate} />);
 
 		expect(screen.getByText("Comming soon")).toBeInTheDocument();
 		expect(
@@ -47,7 +49,7 @@ describe("CountdownTimer", () => {
 		const { CountdownTimer } = await import(
 			"@/components/homepage/CountdownTimer"
 		);
-		render(<CountdownTimer />);
+		render(<CountdownTimer eventDate={futureDate} />);
 
 		expect(screen.queryByText("Comming soon")).not.toBeInTheDocument();
 		expect(
@@ -73,7 +75,7 @@ describe("CountdownTimer", () => {
 		const { CountdownTimer } = await import(
 			"@/components/homepage/CountdownTimer"
 		);
-		render(<CountdownTimer />);
+		render(<CountdownTimer eventDate={futureDate} />);
 
 		expect(
 			screen.getByRole("group", { name: "3 days remaining" }),
@@ -98,7 +100,7 @@ describe("CountdownTimer", () => {
 		const { CountdownTimer } = await import(
 			"@/components/homepage/CountdownTimer"
 		);
-		const { container } = render(<CountdownTimer />);
+		const { container } = render(<CountdownTimer eventDate={futureDate} />);
 
 		const liveRegion = container.querySelector('[aria-live="polite"]');
 		expect(liveRegion).toBeInTheDocument();
