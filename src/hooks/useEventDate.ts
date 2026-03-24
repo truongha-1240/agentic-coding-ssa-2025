@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/libs/supabase/client";
 
-const FALLBACK_DATE = process.env.NEXT_PUBLIC_EVENT_DATE || "2026-12-12T19:00:00+07:00";
+const FALLBACK_DATE = process.env.NEXT_PUBLIC_EVENT_DATE || "2025-12-26T19:00:00+07:00";
 
 export function useEventDate() {
 	const [eventDate, setEventDate] = useState<Date | null>(null);

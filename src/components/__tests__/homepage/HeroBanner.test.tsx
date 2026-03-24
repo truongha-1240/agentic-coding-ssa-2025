@@ -8,6 +8,14 @@ vi.mock("next/image", () => ({
 	),
 }));
 
+vi.mock("@/hooks/useEventDate", () => ({
+	useEventDate: () => ({
+		eventDate: new Date("2025-12-26T19:00:00+07:00"),
+		isLoading: false,
+		error: null,
+	}),
+}));
+
 vi.mock("@/components/homepage/CountdownTimer", () => ({
 	CountdownTimer: () => (
 		<div data-testid="countdown-timer">CountdownTimer</div>

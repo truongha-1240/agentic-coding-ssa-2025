@@ -99,6 +99,7 @@ export const vi = {
 		submit: "Gửi",
 		submitting: "Đang gửi...",
 		success: "Gửi thành công!",
+		searching: "Đang tìm kiếm...",
 		searchPlaceholder: "Tìm kiếm",
 		noResults: "Không tìm thấy",
 		required: "*",

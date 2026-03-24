@@ -99,6 +99,7 @@ export const en = {
 		submit: "Send",
 		submitting: "Sending...",
 		success: "Kudo sent successfully!",
+		searching: "Searching...",
 		searchPlaceholder: "Search",
 		noResults: "No results found",
 		required: "*",
