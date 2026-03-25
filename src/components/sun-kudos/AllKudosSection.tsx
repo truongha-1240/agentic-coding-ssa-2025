@@ -10,9 +10,12 @@ import { useTranslation } from "@/i18n";
 
 export function AllKudosSection() {
 	const { t } = useTranslation();
-	const { kudos, isLoading, hasMore, loadMore } = useKudosFeed();
 	const { toggleLike } = useLikeKudo();
 	const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
+
+	const { kudos, isLoading, hasMore, loadMore } = useKudosFeed({
+		hashtag: selectedHashtag,
+	});
 
 	function handleHashtagClick(tag: string) {
 		setSelectedHashtag((prev) => (prev === tag ? null : tag));
