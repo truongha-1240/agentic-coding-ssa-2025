@@ -8,32 +8,20 @@ import { CarouselControls } from "@/components/sun-kudos/CarouselControls";
 import { ChevronRightIcon } from "@/components/icons/ChevronRightIcon";
 import { useTranslation } from "@/i18n";
 import { useHighlightKudos } from "@/hooks/useHighlightKudos";
-import type { Hashtag, Department } from "@/types/kudos";
-
-const MOCK_HASHTAGS: Hashtag[] = [
-	{ id: "h1", name: "#Dedicated" },
-	{ id: "h2", name: "#Inspiring" },
-	{ id: "h3", name: "#Leadership" },
-	{ id: "h4", name: "#TechExcellence" },
-	{ id: "h5", name: "#Caring" },
-];
-
-const MOCK_DEPARTMENTS: Department[] = [
-	{ id: "d1", name: "Engineering" },
-	{ id: "d2", name: "Design" },
-	{ id: "d3", name: "Product" },
-	{ id: "d4", name: "QA" },
-	{ id: "d5", name: "HR" },
-];
+import { useFilterOptions } from "@/hooks/useFilterOptions";
 
 export function HighlightKudos() {
 	const { t } = useTranslation();
-	const { highlights } = useHighlightKudos();
-	const [currentSlide, setCurrentSlide] = useState(0);
+	const { hashtags, departments } = useFilterOptions();
 	const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
 	const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
 		null,
 	);
+	const { highlights } = useHighlightKudos({
+		hashtag: selectedHashtag ? hashtags.find(h => h.id === selectedHashtag)?.name || null : null,
+		departmentId: selectedDepartment,
+	});
+	const [currentSlide, setCurrentSlide] = useState(0);
 
 	const totalPages = highlights.length;
 
@@ -94,13 +82,13 @@ export function HighlightKudos() {
 			<div className="flex items-center gap-4 self-end">
 				<FilterDropdown
 					label={t("highlight.filterHashtag")}
-					items={MOCK_HASHTAGS}
+					items={hashtags}
 					selectedId={selectedHashtag}
 					onSelect={setSelectedHashtag}
 				/>
 				<FilterDropdown
 					label={t("highlight.filterDepartment")}
-					items={MOCK_DEPARTMENTS}
+					items={departments}
 					selectedId={selectedDepartment}
 					onSelect={setSelectedDepartment}
 				/>

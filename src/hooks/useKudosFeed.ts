@@ -142,8 +142,8 @@ export function useKudosFeed(options: UseKudosFeedOptions = {}) {
 					{
 						p_cursor: currentCursor,
 						p_limit: PAGE_SIZE,
-						p_hashtag: null,
-						p_department_id: null,
+						p_hashtag: hashtag || null,
+						p_department_id: departmentId || null,
 					},
 				);
 
@@ -196,10 +196,12 @@ export function useKudosFeed(options: UseKudosFeedOptions = {}) {
 				setIsLoading(false);
 			}
 		},
-		[],
+		[hashtag, departmentId],
 	);
 
 	useEffect(() => {
+		setCursor(null);
+		setHasMore(true);
 		fetchFeed(null, false);
 	}, [fetchFeed]);
 
