@@ -13,11 +13,11 @@ export function LoginClient() {
 	function handleLogin() {
 		setIsLoading(true);
 		const supabase = createClient();
-		const origin = window.location.origin;
+		const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
 		supabase.auth.signInWithOAuth({
 			provider: "google",
 			options: {
-				redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(redirectTo)}`,
+				redirectTo: `${siteUrl}/api/auth/callback?next=${encodeURIComponent(redirectTo)}`,
 			},
 		});
 	}

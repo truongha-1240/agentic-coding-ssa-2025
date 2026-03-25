@@ -231,6 +231,152 @@ make dev
 make down
 ```
 
+## Setup hạ tầng & dịch vụ bên ngoài
+
+Dưới đây là tổng hợp các bước cấu hình dịch vụ bên ngoài cần thực hiện trước khi chạy project (local hoặc production).
+
+### 1. Google Cloud Console — Tạo OAuth Credentials
+
+1. Truy cập [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Tạo project mới (hoặc chọn project có sẵn)
+3. Vào **APIs & Services → Credentials → Create Credentials → OAuth client ID**
+4. Application type: **Web application**
+5. **Authorized redirect URIs** — thêm các URL sau:
+   - `http://localhost:54321/auth/v1/callback` (Supabase local)
+   - `https://<YOUR_SUPABASE_PROJECT>.supabase.co/auth/v1/callback` (Supabase production)
+6. Copy **Client ID** và **Client Secret** → điền vào `.env`:
+   ```
+   GOOGLE_CLIENT_ID=your_client_id
+   GOOGLE_CLIENT_SECRET=your_client_secret
+   ```
+
+### 2. Supabase — Tạo project & cấu hình
+
+#### 2.1 Tạo project trên Supabase Dashboard
+
+1. Truy cập [Supabase Dashboard](https://supabase.com/dashboard)
+2. Tạo project mới → chọn region gần nhất
+3. Vào **Settings → API** → copy các giá trị sau vào `.env`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://<project_id>.supabase.co
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<anon_public_key>
+   SUPABASE_SECRET_KEY=<service_role_secret_key>
+   ```
+
+#### 2.2 Khởi tạo database schema
+
+1. Vào **SQL Editor** trên Supabase Dashboard
+2. Chạy nội dung file `supabase/schema.sql` để tạo tables, views, functions, RLS policies
+3. Chạy nội dung file `supabase/seed.sql` để tạo dữ liệu mẫu (departments, hashtags, award categories...)
+
+#### 2.3 Cấu hình Authentication
+
+1. Vào **Authentication → Providers → Google**
+2. Enable Google provider
+3. Điền **Client ID** và **Client Secret** từ Google Cloud Console
+4. Vào **Authentication → URL Configuration**:
+   - **Site URL**: `https://your-domain.com` (production) hoặc `http://localhost:3000` (local)
+   - **Redirect URLs** — thêm tất cả:
+     - `http://localhost:3000/**`
+     - `https://your-domain.com/**`
+
+#### 2.4 Cấu hình Storage
+
+1. Vào **Storage** → tạo bucket tên `kudo-images`
+2. Set bucket policy: **Public** (để hiển thị ảnh trong kudos)
+
+### 3. Vercel — Deploy production
+
+#### 3.1 Tạo project
+
+1. Truy cập [Vercel Dashboard](https://vercel.com) → **Add New Project**
+2. Import Git Repository → chọn repo `agentic-coding-hands-on`
+3. Framework Preset: **Next.js** (tự detect)
+
+#### 3.2 Environment Variables
+
+Vào **Settings → Environment Variables**, thêm các biến sau:
+
+| Variable | Value | Scope |
+|----------|-------|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | `https://<project_id>.supabase.co` | Production |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `<anon_public_key>` | Production |
+| `SUPABASE_SECRET_KEY` | `<service_role_secret_key>` | Production |
+| `NEXT_PUBLIC_SITE_URL` | `https://your-domain.com` | Production |
+
+> **Lưu ý:** Không cần thêm `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` trên Vercel vì Google OAuth được xử lý bởi Supabase server-side.
+
+#### 3.3 Lưu ý khi build
+
+- Project dùng **yarn** (có `yarn.lock`). Nếu tồn tại cả `package-lock.json`, hãy xóa `package-lock.json` để tránh conflict
+- Nếu gặp lỗi `@cloudflare/workerd`, kiểm tra `next.config.ts` không import `@opennextjs/cloudflare` (chỉ cần khi deploy Cloudflare Workers, không cần cho Vercel)
+
+### 4. Cloudflare — Custom domain (tuỳ chọn)
+
+Nếu bạn muốn dùng custom domain thay vì `*.vercel.app`:
+
+#### 4.1 Thêm domain trên Vercel
+
+1. Vào project → sidebar **Domains** → nhập subdomain (ví dụ `kudos.yourdomain.com`)
+2. Vercel sẽ hiện DNS records cần cấu hình
+
+#### 4.2 Cấu hình DNS trên Cloudflare
+
+1. Vào domain trên [Cloudflare Dashboard](https://dash.cloudflare.com) → **DNS → Records**
+2. Thêm **CNAME record**:
+   - Name: `kudos` (tên subdomain)
+   - Target: giá trị Vercel cung cấp (dạng `xxxxxxxx.vercel-dns-xxx.com`)
+   - Proxy status: **DNS only** (tắt proxy cam → icon xám)
+3. Nếu Vercel yêu cầu verify ownership, thêm thêm **TXT record**:
+   - Name: `_vercel`
+   - Content: giá trị `vc-domain-verify=...` mà Vercel cung cấp
+4. Quay lại Vercel nhấn **Refresh** để verify
+
+#### 4.3 Cập nhật redirect URLs
+
+Sau khi có custom domain, nhớ cập nhật:
+- **Supabase** → Authentication → URL Configuration → thêm `https://your-custom-domain.com/**`
+- **Vercel** → Environment Variables → set `NEXT_PUBLIC_SITE_URL=https://your-custom-domain.com`
+- **Google Cloud Console** → OAuth Credentials → thêm redirect URI nếu cần
+- Redeploy trên Vercel sau khi đổi env
+
+### 5. Tổng hợp Environment Variables
+
+```bash
+# === .env (local development) ===
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://<project_id>.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<anon_public_key>
+SUPABASE_SECRET_KEY=<service_role_secret_key>
+
+# Site URL (dùng cho OAuth redirect)
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Event countdown (tuỳ chọn, có fallback)
+NEXT_PUBLIC_EVENT_DATE=2025-12-26T19:00:00+07:00
+
+# Supabase local seeds
+SUPABASE_EXTRA_SEEDS=./seeds/dev/*.sql
+```
+
+### 6. Checklist setup nhanh
+
+- [ ] Tạo Google OAuth Credentials → có Client ID + Secret
+- [ ] Tạo Supabase project → có URL + Anon Key + Secret Key
+- [ ] Chạy `schema.sql` + `seed.sql` trên Supabase SQL Editor
+- [ ] Enable Google Auth trên Supabase + thêm Redirect URLs
+- [ ] Tạo Storage bucket `kudo-images` trên Supabase
+- [ ] Điền đầy đủ `.env`
+- [ ] `yarn install` + `make up` + `make dev` → chạy local OK
+- [ ] (Production) Tạo Vercel project + thêm env vars + deploy
+- [ ] (Production) Cấu hình custom domain (Cloudflare DNS + Vercel Domains)
+- [ ] (Production) Cập nhật Site URL + Redirect URLs trên Supabase
+
 ## Tài liệu tham khảo
 
 - [MoMorph CLI Documentation](https://sun-asterisk.enterprise.slack.com/docs/T02CQGZA7MK/F0A86NC88SK)
